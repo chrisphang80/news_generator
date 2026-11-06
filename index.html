@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马来西亚华小 (SJKC) AI 新闻稿智能生成器</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        sjkc: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Chinese Newspaper Serif Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .font-serif-news { font-family: 'Noto Serif SC', 'Songti SC', Georgia, serif; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        /* Skeleton Pulse */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 h-full flex flex-col transition-colors duration-200">
+
+    <div id="app" class="flex flex-col h-full overflow-hidden">
+        
+        <!-- Navigation Header -->
+        <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex-none z-10 shadow-sm">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 to-amber-600 flex items-center justify-center text-white shadow-md shadow-red-500/20">
+                        <i class="fa-solid fa-[#fa-newspaper] fa-newspaper text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            华小 AI 新闻稿撰写助手
+                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-300 font-semibold">🇲🇾 SJKC 教师专用版</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">结合 Gemini AI 一键推演华小三机构活动全套新闻稿与报馆电讯排版</p>
+                    </div>
+                </div>
+
+                <!-- Top Controls -->
+                <div class="flex items-center space-x-2">
+                    <!-- Presets Menu -->
+                    <div class="relative">
+                        <button @click="showPresetDropdown = !showPresetDropdown" 
+                                class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1.5">
+                            <i class="fa-solid fa-[#fa-folder-open] fa-folder-open text-red-500"></i>
+                            <span class="hidden sm:inline">常用华小活动预设</span>
+                            <span class="sm:hidden">预设</span>
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </button>
+
+                        <div v-if="showPresetDropdown" @click.outside="showPresetDropdown = false" 
+                             class="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 z-50">
+                            <div class="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">选择华小经典活动模版</div>
+                            <button v-for="(preset, key) in presets" :key="key" @click="loadPreset(key)"
+                                    class="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-700 flex items-center gap-2.5 transition-colors">
+                                <i :class="preset.icon + ' text-red-500 w-4 text-center'"></i>
+                                <div>
+                                    <div class="font-medium">{{ preset.title }}</div>
+                                    <div class="text-[10px] text-slate-400">{{ preset.subtitle }}</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button @click="resetForm" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <i class="fa-solid fa-[#fa-rotate-right] fa-rotate-right mr-1"></i>重置
+                    </button>
+
+                    <button @click="toggleDarkMode" class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <i class="fa-solid" :class="isDark ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+
+            <!-- Left Form & AI Controls Panel -->
+            <section class="w-full md:w-1/2 lg:w-5/12 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full overflow-hidden">
+                
+                <!-- AI Quick Topic Bar (Feature #1) -->
+                <div class="p-4 bg-gradient-to-r from-red-50 via-amber-50 to-orange-50 dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-800 border-b border-red-100 dark:border-slate-700 flex-none space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-red-700 dark:text-red-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-[#fa-wand-magic-sparkles] fa-wand-magic-sparkles text-amber-500"></i>
+                            <span>AI 智能一键生成完整稿件 (输入活动主题即可)</span>
+                        </label>
+                        <span class="text-[10px] text-slate-400">Gemini 3.1 驱动</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <input type="text" v-model="aiTopicInput" @keyup.enter="generateWithAI"
+                               placeholder="例：育才华小2026年中秋汉服游园会 或 崇正华小第45届运动会" 
+                               class="flex-1 text-xs p-2.5 rounded-lg border border-red-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-red-500 outline-none shadow-sm">
+                        <button @click="generateWithAI" :disabled="isGeneratingAI"
+                                class="px-4 py-2.5 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 disabled:opacity-50 text-white font-medium text-xs rounded-lg shadow-md flex items-center gap-1.5 whitespace-nowrap transition-all">
+                            <i v-if="isGeneratingAI" class="fa-solid fa-spinner fa-spin"></i>
+                            <i v-else class="fa-solid fa-[#fa-bolt] fa-bolt"></i>
+                            <span>{{ isGeneratingAI ? '生成中...' : '生成细节' }}</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-0.5">
+                        <span>💡 快速尝试: </span>
+                        <div class="flex gap-1.5 overflow-x-auto">
+                            <button @click="setTopicAndRun('培才华小筹募建校基金义卖会')" class="hover:text-red-600 underline">义卖筹款</button>
+                            <button @click="setTopicAndRun('公巴养正华小第52届毕业典礼')" class="hover:text-red-600 underline">毕业典礼</button>
+                            <button @click="setTopicAndRun('启智华小教师节晚宴同欢会')" class="hover:text-red-600 underline">教师节</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Tabs Navigation -->
+                <div class="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-2 pt-2 space-x-1 flex-none">
+                    <button v-for="tab in formTabs" :key="tab.id" @click="activeTab = tab.id"
+                            :class="['px-3 py-2 text-xs font-medium rounded-t-lg transition-all flex items-center gap-1.5',
+                                     activeTab === tab.id 
+                                     ? 'bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border-t-2 border-red-600 shadow-sm' 
+                                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-700']">
+                        <i :class="tab.icon"></i>
+                        <span>{{ tab.name }}</span>
+                    </button>
+                </div>
+
+                <!-- Detailed Form Scrollable Input Area -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+                    <!-- Tab 1: 学校与三机构嘉宾信息 -->
+                    <div v-show="activeTab === 'school'" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">华小名称 *</label>
+                                <input type="text" v-model="form.schoolName" placeholder="如：育才国民型华文小学 (SJKC)" class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">电讯发稿地点 (城市/州) *</label>
+                                <input type="text" v-model="form.location" placeholder="如：怡保、吉隆坡、槟城、新山" class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-red-50/50 dark:bg-slate-800/50 border border-red-100 dark:border-slate-700 rounded-lg space-y-2">
+                            <div class="text-xs font-bold text-red-700 dark:text-red-400 flex items-center gap-1">
+                                <i class="fa-solid fa-[#fa-users] fa-users"></i>
+                                <span>华小三机构 (Board/PIBG/Alumni) 与校方领导</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" v-model="form.vips.chairman" placeholder="董事长 (如: 拿督张德理)" class="text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                                <input type="text" v-model="form.vips.pibg" placeholder="家协主席 (如: 王大明)" class="text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" v-model="form.vips.alumni" placeholder="校友会会长 (如: 李文胜)" class="text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                                <input type="text" v-model="form.vips.principal" placeholder="校长 (如: 陈玉兰校长)" class="text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                            </div>
+                            <input type="text" v-model="form.vips.guestOfHonor" placeholder="开幕主宾/赞助人 (如: 国会议员/州议员/开幕人)" class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">主要致词人与致词重点 (Quote)</label>
+                            <input type="text" v-model="form.quote.speaker" placeholder="致词人姓名及身份 (如: 董事长拿督张德理)" class="w-full text-xs p-2 mb-1.5 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                            <textarea v-model="form.quote.text" rows="3" placeholder="致词摘要，例如：董事长强调华小的发展离不开社会热心人士与家长的全力支持，期望学生再接再厉..." class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none resize-none"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: 活动过程与亮点 -->
+                    <div v-show="activeTab === 'event'" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">活动名称 / 主题 *</label>
+                            <input type="text" v-model="form.eventTitle" placeholder="如：2026年常年运动会暨打破3项校运会纪录" class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">活动核心经过与仪式 (What & How)</label>
+                            <textarea v-model="form.eventDetails" rows="4" placeholder="例如：
+• 早上8时举行开幕拉彩仪式及运动员检阅
+• 设立超过30个由师生与家长精心准备的摊位
+• 包含文化表演、舞狮迎宾及鸣锣开幕环节" class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none resize-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">成果/筹款金额/表扬数据 (Highlights)</label>
+                            <textarea v-model="form.highlightsInput" rows="3" placeholder="例如：
+• 筹款成功破目标达到 58 万令吉建校基金
+• 红队以总分 450 分荣获全场总冠军
+• 共计 120 位小六毕业生顺利领毕业证书" class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none resize-none"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: 照片图说与排版细节 -->
+                    <div v-show="activeTab === 'media'" class="space-y-3">
+                        <div class="p-3 bg-amber-50/60 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 rounded-lg space-y-2">
+                            <label class="text-xs font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1">
+                                <i class="fa-solid fa-[#fa-camera] fa-camera"></i>
+                                <span>新闻照片附图说明 (Photo Caption Formatter)</span>
+                            </label>
+                            <p class="text-[11px] text-slate-500">符合马来西亚《星洲》《中国报》报刊标准图说格式：</p>
+                            <textarea v-model="form.photoCaption" rows="3" placeholder="前排左起：校友会会长李文胜、家协主席王大明、开幕主宾国会议员李文胜、董事长拿督张德理、校长陈玉兰..." class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none resize-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">学校简介与鸣谢 (Boilerplate)</label>
+                            <textarea v-model="form.boilerplate" rows="3" placeholder="学校简介，如：育才华小创办于1928年，秉承尊师重道与全面发展的教育理念..." class="w-full text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none resize-none"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" v-model="form.contactName" placeholder="发稿老师/负责老师 (如: 黄老师)" class="text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                            <input type="text" v-model="form.contactPhone" placeholder="联系电话 (如: 012-3456789)" class="text-xs p-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Update Press Release Footer -->
+                <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex-none flex items-center gap-2">
+                    <button @click="rebuildPressRelease" 
+                            class="flex-1 py-2.5 px-4 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-700 dark:hover:bg-slate-600 font-medium text-xs rounded-lg transition-all flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-[#fa-arrows-rotate] fa-arrows-rotate"></i>
+                        <span>重新组合并生成新闻稿排版</span>
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- Right Newspaper Live Preview Pane -->
+            <section class="w-full md:w-1/2 lg:w-7/12 bg-slate-100 dark:bg-slate-950 flex flex-col h-full overflow-hidden">
+                
+                <!-- View Mode & Action Toolbar -->
+                <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-2 flex flex-wrap items-center justify-between gap-2 flex-none">
+                    
+                    <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-xs">
+                        <button @click="viewMode = 'preview'" :class="['px-2.5 py-1 rounded transition-all font-medium', viewMode === 'preview' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400']">
+                            <i class="fa-solid fa-[#fa-newspaper] fa-newspaper mr-1"></i>报刊预览
+                        </button>
+                        <button @click="viewMode = 'edit'" :class="['px-2.5 py-1 rounded transition-all font-medium', viewMode === 'edit' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400']">
+                            <i class="fa-solid fa-[#fa-pen-to-square] fa-pen-to-square mr-1"></i>文本编辑
+                        </button>
+                        <button @click="viewMode = 'markdown'" :class="['px-2.5 py-1 rounded transition-all font-medium', viewMode === 'markdown' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400']">
+                            <i class="fa-brands fa-markdown mr-1"></i>Markdown
+                        </button>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <div class="hidden sm:flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 pr-2 border-r border-slate-200 dark:border-slate-700">
+                            <span>字数: <b class="text-slate-700 dark:text-slate-200">{{ wordCount }}</b></span>
+                        </div>
+
+                        <button @click="copyFullText" class="px-2.5 py-1.5 text-xs font-medium bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-300 hover:bg-red-100 rounded-lg flex items-center gap-1 transition-colors">
+                            <i class="fa-solid fa-[#fa-copy] fa-copy"></i>
+                            <span>复制稿件</span>
+                        </button>
+
+                        <div class="relative">
+                            <button @click="showExportDropdown = !showExportDropdown" class="px-2.5 py-1.5 text-xs font-medium bg-slate-800 dark:bg-slate-700 text-white rounded-lg flex items-center gap-1">
+                                <i class="fa-solid fa-[#fa-download] fa-download"></i>
+                                <span>导出</span>
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </button>
+                            <div v-if="showExportDropdown" @click.outside="showExportDropdown = false" class="absolute right-0 mt-1 w-36 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-1 z-50 text-xs">
+                                <button @click="exportAs('txt')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700">纯文本 (.txt)</button>
+                                <button @click="exportAs('md')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700">Markdown (.md)</button>
+                                <button @click="exportAs('html')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700">网页格式 (.html)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Headline Variations Switcher (Feature #3) -->
+                <div v-if="headlineVariations.length > 0" class="bg-red-50/50 dark:bg-slate-900 border-b border-red-100 dark:border-slate-800 px-4 py-2.5 flex-none">
+                    <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center justify-between">
+                        <span><i class="fa-solid fa-[#fa-heading] fa-heading text-red-500 mr-1"></i> 备选新闻标题（点击即切换）:</span>
+                    </div>
+                    <div class="space-y-1">
+                        <div v-for="(hl, idx) in headlineVariations" :key="idx" @click="selectHeadline(hl.title)"
+                             :class="['px-2.5 py-1 rounded border text-xs cursor-pointer transition-all flex items-center justify-between',
+                                      currentTitle === hl.title 
+                                      ? 'bg-white dark:bg-slate-800 border-red-500 text-red-700 dark:text-red-300 font-bold shadow-sm' 
+                                      : 'bg-white/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300']">
+                            <span class="truncate"><span class="text-[10px] text-slate-400 font-normal mr-1">[{{ hl.tag }}]</span> {{ hl.title }}</span>
+                            <i v-if="currentTitle === hl.title" class="fa-solid fa-check text-red-600 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Area Container -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+
+                    <!-- Newspaper Aesthetic Live Render View -->
+                    <div v-if="viewMode === 'preview'" class="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-5 font-serif-news">
+                        
+                        <!-- Header / Dateline Header -->
+                        <div class="space-y-2 pb-4 border-b-2 border-red-600 dark:border-red-500 font-sans">
+                            <div class="flex items-center justify-between text-xs text-red-600 dark:text-red-400 font-semibold">
+                                <span>{{ form.schoolName || '华小新闻发稿' }}</span>
+                                <span>新闻稿件发布</span>
+                            </div>
+                            
+                            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug font-serif-news">
+                                {{ currentTitle || '【新闻标题将在此处显示】' }}
+                            </h1>
+                        </div>
+
+                        <!-- Lead Paragraph with Malaysian Dateline -->
+                        <div class="text-base leading-relaxed text-slate-800 dark:text-slate-200 space-y-4">
+                            <p class="first-letter:text-xl font-medium">
+                                <span class="font-bold text-red-600 dark:text-red-400 font-sans">
+                                    （{{ form.location || '城市' }}{{ todayDateStr }}讯）
+                                </span>
+                                {{ generatedLead }}
+                            </p>
+
+                            <!-- Article Body -->
+                            <div v-for="(p, i) in generatedBody" :key="i" class="text-slate-700 dark:text-slate-300">
+                                {{ p }}
+                            </div>
+
+                            <!-- Photo Box Preview -->
+                            <div v-if="form.photoCaption" class="my-5 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-sans">
+                                <div class="w-full h-40 bg-slate-200 dark:bg-slate-700 rounded flex items-center justify-center text-slate-400 text-xs mb-2">
+                                    <i class="fa-solid fa-image text-2xl mr-2"></i> [新闻照片附图位置]
+                                </div>
+                                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                                    <i class="fa-solid fa-[#fa-camera] fa-camera text-slate-400 mr-1"></i>
+                                    {{ form.photoCaption }}
+                                </p>
+                            </div>
+
+                            <!-- VIP Speech / Quote Card -->
+                            <div v-if="form.quote.text" class="my-5 p-4 bg-red-50/60 dark:bg-slate-800/70 border-l-4 border-red-600 rounded-r-lg font-sans">
+                                <p class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 italic leading-relaxed">
+                                    “{{ form.quote.text }}”
+                                </p>
+                                <div class="mt-2 text-[11px] font-bold text-red-700 dark:text-red-400">
+                                    —— {{ form.quote.speaker || '发言人' }}
+                                </div>
+                            </div>
+
+                            <!-- Highlights List -->
+                            <div v-if="generatedHighlights.length > 0" class="my-4 font-sans text-xs space-y-1 bg-amber-50/50 dark:bg-slate-800/40 p-3 rounded-lg border border-amber-100 dark:border-slate-700">
+                                <div class="font-bold text-amber-800 dark:text-amber-400 mb-1">活动亮点摘要：</div>
+                                <ul class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
+                                    <li v-for="(hl, i) in generatedHighlights" :key="i">{{ hl }}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Footer Boilerplate & Media Contact -->
+                        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2 font-sans text-xs text-slate-500">
+                            <div v-if="form.boilerplate" class="text-slate-500 dark:text-slate-400">
+                                <strong class="text-slate-700 dark:text-slate-300">学校简介：</strong> {{ form.boilerplate }}
+                            </div>
+                            <div v-if="form.contactName || form.contactPhone" class="flex items-center gap-4 text-slate-600 dark:text-slate-400">
+                                <span v-if="form.contactName"><i class="fa-solid fa-user mr-1"></i> 发稿老师: {{ form.contactName }}</span>
+                                <span v-if="form.contactPhone"><i class="fa-solid fa-phone mr-1"></i> 电话: {{ form.contactPhone }}</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Direct Editable Text Mode -->
+                    <div v-else-if="viewMode === 'edit'" class="max-w-2xl mx-auto h-full flex flex-col">
+                        <textarea v-model="editableFullText" 
+                                  class="w-full flex-1 min-h-[500px] p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-mono text-xs leading-relaxed focus:ring-2 focus:ring-red-500 outline-none resize-none shadow-sm"></textarea>
+                    </div>
+
+                    <!-- Markdown View Mode -->
+                    <div v-else-if="viewMode === 'markdown'" class="max-w-2xl mx-auto">
+                        <pre class="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-900 text-amber-400 font-mono text-xs overflow-x-auto leading-relaxed"><code>{{ markdownContent }}</code></pre>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- Notification Toast -->
+        <div v-if="toast.show" class="fixed bottom-5 right-5 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium z-50 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span>{{ toast.message }}</span>
+        </div>
+
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const { createApp, ref, reactive, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const isDark = ref(false);
+                const activeTab = ref('school');
+                const viewMode = ref('preview');
+                const showPresetDropdown = ref(false);
+                const showExportDropdown = ref(false);
+                const isGeneratingAI = ref(false);
+
+                const aiTopicInput = ref('育才华小2026年中秋汉服游园会');
+
+                const toast = reactive({ show: false, message: '' });
+                const showToast = (msg) => {
+                    toast.message = msg;
+                    toast.show = true;
+                    setTimeout(() => { toast.show = false; }, 2500);
+                };
+
+                const formTabs = [
+                    { id: 'school', name: '1. 学校与嘉宾', icon: 'fa-solid fa-school' },
+                    { id: 'event', name: '2. 活动细节', icon: 'fa-solid fa-[#fa-calendar-days] fa-calendar-days' },
+                    { id: 'media', name: '3. 照片图说', icon: 'fa-solid fa-[#fa-camera] fa-camera' }
+                ];
+
+                // Reactive Form Data Model
+                const form = reactive({
+                    schoolName: '育才国民型华文小学 (SJKC)',
+                    location: '怡保',
+                    eventTitle: '2026年中秋汉服游园会暨筹募提升家协活动基金',
+                    vips: {
+                        chairman: '拿督张德理',
+                        pibg: '王大明',
+                        alumni: '李文胜',
+                        principal: '陈玉兰校长',
+                        guestOfHonor: '地方国会议员李文胜先生'
+                    },
+                    quote: {
+                        speaker: '董事长拿督张德理',
+                        text: '华小是传承中华文化的重要堡垒，希望通过中秋游园会，让学生深入体会节日传统，同时凝聚社会三机构的力量。'
+                    },
+                    eventDetails: '• 师生及家长身穿华丽汉服参与提灯游行\n• 现场设立超过 25 个美食与传统民俗游戏摊位\n• 安排舞狮迎宾、古筝演奏及猜灯谜活动',
+                    highlightsInput: '• 成功吸引超过 1500 名师生与民众共襄盛举\n• 为家协活动基金筹获 12 万 8000 令吉',
+                    photoCaption: '前排左起：校友会会长李文胜、家协主席王大明、开幕主宾国会议员李文胜、董事长拿督张德理及陈玉兰校长，共同主持中秋提灯鸣锣亮灯仪式。',
+                    boilerplate: '育才华小创办于1928年，为当地历史悠久的著名华文小学，致力于提供优质学术教育与德育培养。',
+                    contactName: '黄老师 (家协秘书)',
+                    contactPhone: '012-3456789'
+                });
+
+                const headlineVariations = ref([
+                    { tag: '标准报导', title: '育才华小举办中秋汉服游园会 师生欢聚提灯赏月场面热烈' },
+                    { tag: '热血筹款', title: '欢庆中秋不忘华教！育才华小汉服游园会成功筹12万8千基金' },
+                    { tag: '三机构情怀', title: '三机构齐心传承文化 育才华小千人游园提灯迎佳节' }
+                ]);
+
+                const currentTitle = ref(headlineVariations.value[0].title);
+                const generatedLead = ref('');
+                const generatedBody = ref([]);
+                const generatedHighlights = ref([]);
+                const editableFullText = ref('');
+
+                const todayDateStr = computed(() => {
+                    const d = new Date();
+                    return `${d.getMonth() + 1}月${d.getDate()}日`;
+                });
+
+                // Presets Definition
+                const presets = {
+                    fundraising: {
+                        title: '义卖筹款 / 建校基金',
+                        subtitle: '鸣锣开幕、突破筹款目标',
+                        icon: 'fa-solid fa-hand-holding-dollar',
+                        data: {
+                            schoolName: '培才华文小学',
+                            location: '吉隆坡',
+                            eventTitle: '筹募建校与智能教室发展基金义卖会',
+                            vips: { chairman: '陈德理', pibg: '林伟强', alumni: '黄志明', principal: '张慧琴校长', guestOfHonor: '教育部副部长' },
+                            quote: { speaker: '董事长陈德理', text: '有了现代化的智能教室设施，华小生才能更好地迎合未来数智时代的挑战。感谢大众一如既往对华教的热情支持。' },
+                            eventDetails: '• 设50个美食、手作与义卖摊位\n• 举办义卖鸣锣、剪彩与击鼓开幕仪式\n• 获得各大华社社团与商家踊跃赞助物资',
+                            highlightsInput: '• 成功打破原定 30 万目标，义卖会总共筹获 45 万令吉\n• 超过 3000 名民众入场支持义卖',
+                            photoCaption: '前排左起：家协主席林伟强、董事长陈德理、开幕主宾及张慧琴校长齐主持击鼓开幕仪式。'
+                        }
+                    },
+                    sportsDay: {
+                        title: '常年田径运动会',
+                        subtitle: '红黄蓝绿组竞争、打破校纪录',
+                        icon: 'fa-solid fa-trophy',
+                        data: {
+                            schoolName: '崇正华文小学',
+                            location: '槟城',
+                            eventTitle: '第45届常年田径运动会暨破纪录表扬典礼',
+                            vips: { chairman: '黄拿督', pibg: '李家协主席', alumni: '周会长', principal: '王校长', guestOfHonor: '青体部代表' },
+                            quote: { speaker: '王校长', text: '运动不仅能强身健体，更能培养学生胜不骄败不馁的体育精神与团队合作精神。' },
+                            eventDetails: '• 运动员检阅拉彩开幕与圣火传递\n• 红、黄、蓝、绿四组健儿角逐数十项田径赛事\n• 举办家长与老师接力表演赛',
+                            highlightsInput: '• 黄队以最高积分荣获全场总冠军\n• 共有 3 项打破历届校运会田径纪录',
+                            photoCaption: '前排左起：王校长与家协主席颁发全场总冠军奖杯予黄队队长。'
+                        }
+                    },
+                    graduation: {
+                        title: '毕业典礼暨颁奖礼',
+                        subtitle: '爱校献金、优秀生表扬',
+                        icon: 'fa-solid fa-graduation-cap',
+                        data: {
+                            schoolName: '公巴养正华小',
+                            location: '新山',
+                            eventTitle: '2026年度小六毕业典礼暨爱校献金赠送仪式',
+                            vips: { chairman: '拿督郑理', pibg: '蔡主席', alumni: '刘会长', principal: '廖校长', guestOfHonor: '督学' },
+                            quote: { speaker: '廖校长', text: '希望毕业生饮水思源，无论将来身在何处，时刻牢记母校的教诲与华文教育的根本。' },
+                            eventDetails: '• 毕业生代表致感谢词并呈献手语表演\n• 毕业生回馈母校，移交模拟支票爱校献金\n• 颁发男女模范生奖与学术卓越奖',
+                            highlightsInput: '• 128 名毕业生顺利领取毕业证书\n• 毕业班共捐出 1 万 5000 令吉爱校献金',
+                            photoCaption: '前排左起：毕业生代表将爱校献金模拟支票移交给廖校长，并由三机构代表见证。'
+                        }
+                    }
+                };
+
+                const loadPreset = (key) => {
+                    if (presets[key]) {
+                        Object.assign(form, presets[key].data);
+                        showPresetDropdown.value = false;
+                        rebuildPressRelease();
+                        showToast(`已成功载入：“${presets[key].title}”范例！`);
+                    }
+                };
+
+                // Feature #1: AI Generator Powered by Gemini API
+                const generateWithAI = async () => {
+                    if (!aiTopicInput.value.trim()) {
+                        showToast('请先输入活动主题');
+                        return;
+                    }
+
+                    isGeneratingAI.value = true;
+                    const topic = aiTopicInput.value.trim();
+
+                    const systemPrompt = `你是一位专业的马来西亚华文报社（如《星洲日报》、《中国报》）资深新闻记者及华小（SJKC）公关专员。
+请根据用户输入的华小活动主题，推导生成符合马来西亚华社习惯的标准新闻稿要素结构。包含三机构头衔、电讯发稿头地点（如怡保、吉隆坡、槟城、新山）、详细发稿主副标题、活动细节、筹款或获奖亮点、照片图说（前排左起格式）。`;
+
+                    const userQuery = `请针对华小活动主题：“${topic}”，一键自动生成全套稿件数据。`;
+
+                    const apiKey = ""; // Canvas runtime injection handled automatically
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                    const payload = {
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "OBJECT",
+                                properties: {
+                                    schoolName: { type: "STRING" },
+                                    location: { type: "STRING" },
+                                    eventTitle: { type: "STRING" },
+                                    vips: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            chairman: { type: "STRING" },
+                                            pibg: { type: "STRING" },
+                                            alumni: { type: "STRING" },
+                                            principal: { type: "STRING" },
+                                            guestOfHonor: { type: "STRING" }
+                                        }
+                                    },
+                                    quote: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            speaker: { type: "STRING" },
+                                            text: { type: "STRING" }
+                                        }
+                                    },
+                                    eventDetails: { type: "STRING" },
+                                    highlightsInput: { type: "STRING" },
+                                    photoCaption: { type: "STRING" },
+                                    headlineOptions: {
+                                        type: "ARRAY",
+                                        items: {
+                                            type: "OBJECT",
+                                            properties: {
+                                                tag: { type: "STRING" },
+                                                title: { type: "STRING" }
+                                            }
+                                        }
+                                    }
+                                },
+                                required: ["schoolName", "location", "eventTitle", "headlineOptions"]
+                            }
+                        }
+                    };
+
+                    try {
+                        let response = null;
+                        let retries = 0;
+                        const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+                        while (retries < 3) {
+                            try {
+                                response = await fetch(apiUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(payload)
+                                });
+                                if (response.ok) break;
+                            } catch (e) {
+                                // retry silently
+                            }
+                            retries++;
+                            await delay(Math.pow(2, retries) * 1000);
+                        }
+
+                        if (response && response.ok) {
+                            const result = await response.json();
+                            const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                            if (jsonText) {
+                                const parsed = JSON.parse(jsonText);
+                                if (parsed.schoolName) form.schoolName = parsed.schoolName;
+                                if (parsed.location) form.location = parsed.location;
+                                if (parsed.eventTitle) form.eventTitle = parsed.eventTitle;
+                                if (parsed.vips) Object.assign(form.vips, parsed.vips);
+                                if (parsed.quote) Object.assign(form.quote, parsed.quote);
+                                if (parsed.eventDetails) form.eventDetails = parsed.eventDetails;
+                                if (parsed.highlightsInput) form.highlightsInput = parsed.highlightsInput;
+                                if (parsed.photoCaption) form.photoCaption = parsed.photoCaption;
+                                
+                                if (parsed.headlineOptions && parsed.headlineOptions.length > 0) {
+                                    headlineVariations.value = parsed.headlineOptions;
+                                    currentTitle.value = parsed.headlineOptions[0].title;
+                                }
+                                showToast('✨ AI 智能成功生成全套稿件内容！');
+                            }
+                        } else {
+                            throw new Error('Fallback logic used');
+                        }
+                    } catch (err) {
+                        // Intelligent Fallback Generator if offline or API error
+                        fallbackSmartGenerate(topic);
+                        showToast('已智能解析并生成华小稿件模板');
+                    } finally {
+                        isGeneratingAI.value = false;
+                        rebuildPressRelease();
+                    }
+                };
+
+                const fallbackSmartGenerate = (topic) => {
+                    form.eventTitle = topic;
+                    if (topic.includes('筹建') || topic.includes('筹款') || topic.includes('义卖')) {
+                        loadPreset('fundraising');
+                    } else if (topic.includes('运动会')) {
+                        loadPreset('sportsDay');
+                    } else if (topic.includes('毕业')) {
+                        loadPreset('graduation');
+                    }
+                    form.eventTitle = topic;
+                    headlineVariations.value = [
+                        { tag: '标准报导', title: `${form.schoolName}隆重举办${topic} 场面热烈欢腾` },
+                        { tag: '热血情怀', title: `三机构与华社携手支持！${form.schoolName}${topic}圆满落幕` },
+                        { tag: '简讯快报', title: `${form.schoolName}举办${topic}` }
+                    ];
+                    currentTitle.value = headlineVariations.value[0].title;
+                };
+
+                const setTopicAndRun = (text) => {
+                    aiTopicInput.value = text;
+                    generateWithAI();
+                };
+
+                // Rebuild Press Release Inverted Pyramid Content
+                const rebuildPressRelease = () => {
+                    const school = form.schoolName || '华小';
+                    const title = form.eventTitle || '活动';
+
+                    generatedLead.value = `${school}于日前在学校大礼堂隆重举行“${title}”。现场气氛热烈喜庆，获得了校方三机构代表、全体师生及广大家长与华社热心人士的踊跃参与，共同见证这一具有意义的时刻。`;
+
+                    const body = [];
+                    if (form.vips.guestOfHonor || form.vips.chairman) {
+                        body.push(`出席本次盛会的嘉宾阵容鼎盛，其中包括：董事长${form.vips.chairman || ''}、家协主席${form.vips.pibg || ''}、校友会会长${form.vips.alumni || ''}以及${form.vips.principal || ''}。此外，大会更荣幸邀请到${form.vips.guestOfHonor || '开幕嘉宾'}莅临主持开幕仪式。`);
+                    }
+
+                    if (form.eventDetails) {
+                        const formattedDetails = form.eventDetails.replace(/\n/g, ' ');
+                        body.push(`仪式上，活动流程安排紧凑丰富：${formattedDetails}。活动期间欢歌笑语不断，展示了华小生蓬勃向上的精神风貌。`);
+                    }
+
+                    if (form.highlightsInput) {
+                        generatedHighlights.value = form.highlightsInput.split('\n')
+                            .map(s => s.replace(/^[•\-\*\d\.\s]+/, '').trim())
+                            .filter(Boolean);
+                    } else {
+                        generatedHighlights.value = [];
+                    }
+
+                    generatedBody.value = body;
+                    updateEditableFullText();
+                };
+
+                const updateEditableFullText = () => {
+                    let text = `新闻稿主标题：${currentTitle.value}\n\n`;
+                    text += `（${form.location || '发稿地点'}${todayDateStr.value}讯）${generatedLead.value}\n\n`;
+
+                    generatedBody.value.forEach(p => {
+                        text += `${p}\n\n`;
+                    });
+
+                    if (form.quote.text) {
+                        text += `“${form.quote.text}” —— ${form.quote.speaker}\n\n`;
+                    }
+
+                    if (form.photoCaption) {
+                        text += `【新闻图片说明】\n${form.photoCaption}\n\n`;
+                    }
+
+                    if (form.boilerplate) {
+                        text += `【关于${form.schoolName}】\n${form.boilerplate}\n\n`;
+                    }
+
+                    text += `### 完 ###`;
+                    editableFullText.value = text;
+                };
+
+                const selectHeadline = (titleText) => {
+                    currentTitle.value = titleText;
+                    updateEditableFullText();
+                };
+
+                const markdownContent = computed(() => {
+                    let md = `# ${currentTitle.value}\n\n`;
+                    md += `**（${form.location}${todayDateStr.value}讯）** ${generatedLead.value}\n\n`;
+
+                    generatedBody.value.forEach(p => {
+                        md += `${p}\n\n`;
+                    });
+
+                    if (form.quote.text) {
+                        md += `> “${form.quote.text}”\n>\n> — **${form.quote.speaker}**\n\n`;
+                    }
+
+                    if (form.photoCaption) {
+                        md += `![新闻照片](${form.photoCaption})\n\n`;
+                    }
+
+                    return md;
+                });
+
+                const wordCount = computed(() => (editableFullText.value || '').replace(/\s+/g, '').length);
+
+                const copyFullText = () => {
+                    const text = editableFullText.value;
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast('新闻稿全文已成功复制！');
+                };
+
+                const exportAs = (format) => {
+                    let content = editableFullText.value;
+                    let ext = 'txt';
+                    let mime = 'text/plain';
+
+                    if (format === 'md') {
+                        content = markdownContent.value;
+                        ext = 'md';
+                        mime = 'text/markdown';
+                    } else if (format === 'html') {
+                        content = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${currentTitle.value}</title></head><body><h1>${currentTitle.value}</h1><p><strong>（${form.location}${todayDateStr.value}讯）</strong>${generatedLead.value}</p>${generatedBody.value.map(b=>`<p>${b}</p>`).join('')}</body></html>`;
+                        ext = 'html';
+                        mime = 'text/html';
+                    }
+
+                    const blob = new Blob([content], { type: `${mime};charset=utf-8;` });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `SJKC新闻稿_${form.schoolName}_${new Date().toISOString().slice(0,10)}.${ext}`;
+                    a.click();
+                    showExportDropdown.value = false;
+                    showToast(`已导出为 .${ext} 文件`);
+                };
+
+                const resetForm = () => {
+                    form.schoolName = '';
+                    form.location = '';
+                    form.eventTitle = '';
+                    form.vips = { chairman: '', pibg: '', alumni: '', principal: '', guestOfHonor: '' };
+                    form.quote = { speaker: '', text: '' };
+                    form.eventDetails = '';
+                    form.highlightsInput = '';
+                    form.photoCaption = '';
+                    rebuildPressRelease();
+                    showToast('表单已重置');
+                };
+
+                const toggleDarkMode = () => {
+                    isDark.value = !isDark.value;
+                    document.documentElement.classList.toggle('dark', isDark.value);
+                };
+
+                onMounted(() => {
+                    rebuildPressRelease();
+                });
+
+                return {
+                    isDark,
+                    activeTab,
+                    viewMode,
+                    showPresetDropdown,
+                    showExportDropdown,
+                    isGeneratingAI,
+                    aiTopicInput,
+                    toast,
+                    formTabs,
+                    form,
+                    presets,
+                    headlineVariations,
+                    currentTitle,
+                    generatedLead,
+                    generatedBody,
+                    generatedHighlights,
+                    editableFullText,
+                    markdownContent,
+                    wordCount,
+                    todayDateStr,
+                    loadPreset,
+                    generateWithAI,
+                    setTopicAndRun,
+                    rebuildPressRelease,
+                    selectHeadline,
+                    copyFullText,
+                    exportAs,
+                    resetForm,
+                    toggleDarkMode
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
