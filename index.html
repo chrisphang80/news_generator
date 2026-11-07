@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>马来西亚华小 AI 新闻稿智能生成器 (70预设修复版)</title>
+  <title>马来西亚华小 AI 新闻稿智能生成器 (70预设完整版)</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Vue 3 -->
@@ -45,7 +45,7 @@
           <div>
             <h1 class="font-bold text-lg leading-tight flex items-center gap-2">
               华小 AI 新闻稿生成器
-              <span class="text-xs bg-amber-400 text-red-950 font-extrabold px-2 py-0.5 rounded-full">70大预设全激活</span>
+              <span class="text-xs bg-amber-400 text-red-950 font-extrabold px-2 py-0.5 rounded-full">70大预设精确版</span>
             </h1>
             <p class="text-xs text-red-200">专为马来西亚华小三机构、校长及老师打造的标准新闻稿排版系统</p>
           </div>
@@ -53,8 +53,8 @@
 
         <!-- 顶部操作按钮组 -->
         <div class="flex items-center gap-2 flex-wrap text-sm">
-          <button @click="showPresetsModal = true" class="bg-amber-500 hover:bg-amber-400 text-red-950 font-bold px-3 py-1.5 rounded-xl shadow transition flex items-center gap-1.5 text-xs">
-            📚 70项华小活动预设 (点此选择)
+          <button @click="showPresetsModal = true" class="bg-amber-500 hover:bg-amber-400 text-red-950 font-bold px-3 py-1.5 rounded-xl shadow transition flex items-center gap-1.5 text-xs animate-pulse">
+            📚 70项华小预设库 (每类10项)
           </button>
 
           <!-- 模式切换控制器 -->
@@ -97,8 +97,8 @@
             <h2 class="font-bold text-base flex items-center gap-2">
               <span class="text-xl">✨</span> AI 智能主题推演
             </h2>
-            <button @click="showPresetsModal = true" class="text-xs bg-amber-700/80 hover:bg-amber-800 text-white px-2.5 py-1 rounded-lg transition font-bold">
-              打开70项预设库 📚
+            <button @click="showPresetsModal = true" class="text-xs bg-slate-900/80 hover:bg-slate-900 text-amber-300 font-bold px-3 py-1 rounded-xl transition border border-amber-400/30">
+              📚 70项活动预设 (7x10)
             </button>
           </div>
           <p class="text-xs text-amber-100">输入主题（如：<i>崇正华小中秋游园会暨筹款</i>），AI 自动填写所有分步资料。</p>
@@ -350,41 +350,59 @@
     </main>
 
     <!-- 70项华小活动预设 Modal -->
-    <div v-if="showPresetsModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-white dark:bg-slate-800 w-full max-w-4xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <div v-if="showPresetsModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div class="bg-white dark:bg-slate-800 w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         
+        <!-- Modal 头部 -->
         <div class="p-4 bg-red-800 text-white flex items-center justify-between">
-          <h3 class="font-bold text-base flex items-center gap-2">
-            📚 华小 70 项精选活动预设库 (全部70项已激活)
-          </h3>
-          <button @click="showPresetsModal = false" class="text-red-200 hover:text-white text-xl font-bold px-2">✕</button>
+          <div>
+            <h3 class="font-bold text-base flex items-center gap-2">
+              📚 华小 70 项精选活动预设库
+              <span class="text-xs bg-amber-400 text-red-950 font-bold px-2 py-0.5 rounded-full">共 7 大类 / 每类 10 项</span>
+            </h3>
+            <p class="text-xs text-red-200 mt-0.5">点击下方任意分类标签查看专属10项活动，点击卡片即刻生成长稿</p>
+          </div>
+          <button @click="showPresetsModal = false" class="text-red-200 hover:text-white text-2xl font-bold px-2">✕</button>
         </div>
 
-        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 bg-slate-50 dark:bg-slate-900">
-          <input type="text" v-model="presetSearch" placeholder="🔍 搜索活动关键词 (如: 义卖、挥春、露营、奥数、运动会)..." class="flex-1 px-3 py-2 text-sm border rounded-xl dark:bg-slate-800 dark:border-slate-700">
-          <select v-model="selectedCategory" class="px-3 py-2 text-sm border rounded-xl dark:bg-slate-800 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-200">
-            <option value="ALL">全部 70 项分类 ({{ allPresets.length }} 项)</option>
-            <option v-for="cat in presetCategories" :key="cat" :value="cat">{{ cat }}</option>
-          </select>
+        <!-- 7大类快捷标签按钮栏 -->
+        <div class="p-3 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-1.5 text-xs">
+          <button @click="selectedCategory = 'ALL'" :class="selectedCategory === 'ALL' ? 'bg-red-800 text-white font-bold shadow' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 transition">
+            全部分类 (70项)
+          </button>
+          <button v-for="cat in presetCategories" :key="cat" 
+                  @click="selectedCategory = cat" 
+                  :class="selectedCategory === cat ? 'bg-red-800 text-white font-bold shadow' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'" 
+                  class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 transition flex items-center gap-1">
+            <span>{{ cat }}</span>
+            <span class="text-[10px] bg-amber-400 text-red-950 px-1.5 py-0.2 rounded-full font-bold">10项</span>
+          </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div v-for="(item, i) in filteredPresets" :key="i" 
+        <!-- 搜索与卡片展示区域 -->
+        <div class="p-3 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2 bg-white dark:bg-slate-800">
+          <input type="text" v-model="presetSearch" placeholder="🔍 输入关键词搜索 (如: 义卖、挥春、奥数、露营、运动会)..." class="flex-1 px-3.5 py-2 text-sm border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+        </div>
+
+        <!-- 70项卡片网格列表 -->
+        <div class="flex-1 overflow-y-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50">
+          <div v-for="item in filteredPresets" :key="item.id" 
                @click="applyPreset(item)"
-               class="p-3.5 border border-slate-200 dark:border-slate-700 hover:border-red-500 dark:hover:border-red-400 rounded-xl cursor-pointer hover:bg-red-50/60 dark:hover:bg-slate-700/60 transition space-y-1.5 shadow-sm">
+               class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-red-500 dark:hover:border-red-400 rounded-xl cursor-pointer hover:shadow-md transition space-y-1.5 group">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-sm text-red-900 dark:text-red-300 flex items-center gap-1.5">
-                <span class="text-xs bg-red-800 text-white px-1.5 py-0.5 rounded font-mono">{{ i + 1 }}</span>
+              <span class="font-bold text-sm text-slate-900 dark:text-slate-100 group-hover:text-red-700 dark:group-hover:text-red-400 flex items-center gap-2">
+                <span class="text-xs font-mono bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 px-2 py-0.5 rounded-md">#{{ item.id }}</span>
                 {{ item.name }}
               </span>
-              <span class="text-[10px] bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded font-bold text-slate-600 dark:text-slate-300">{{ item.category }}</span>
+              <span class="text-[10px] bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 px-2 py-0.5 rounded-md font-bold">{{ item.category }}</span>
             </div>
-            <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">{{ item.highlights }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">{{ item.highlights }}</p>
           </div>
         </div>
 
-        <div class="p-3 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
-          <span class="text-slate-500">共找到 {{ filteredPresets.length }} 项相关活动（点击任意卡片即可一键生成稿件）</span>
+        <!-- Modal 底部 -->
+        <div class="p-3 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
+          <span class="text-slate-500">当前显示 <b>{{ filteredPresets.length }}</b> 项预设活动</span>
           <button @click="showPresetsModal = false" class="px-4 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-xl font-bold transition">关闭窗口</button>
         </div>
       </div>
@@ -454,7 +472,7 @@
 
         const headlineOptions = computed(() => [
           `${form.schoolName}盛大举行“${form.eventName}” 华社同欢共襄盛举`,
-          `打破预定目标！ ${form.schoolName}“${form.eventName}”圆满落幕再创高峰`,
+          `打破预定筹款目标！ ${form.schoolName}“${form.eventName}”圆满落幕`,
           `传承华情共创辉煌 ${form.schoolName}“${form.eventName}”热烈回响`
         ]);
 
@@ -463,91 +481,91 @@
           '典礼与校园里程碑', '体育与健康运动', '制服团体与课外拓展', '家协与社区共育'
         ];
 
-        // 完整 70 项华小预设活动（每类 10 项）
+        // 完整 70 项华小预设活动明细（7大类 × 10项 = 70项）
         const allPresets = [
-          // 1. 中华与文化节庆 (10项)
-          { name: '新春挥春比赛暨文化表演', category: '中华与文化节庆', highlights: '全校师生身穿红衣迎新春，特邀书法家现场挥毫，并举办华乐与二十四节令鼓表演，展现深厚中华文化底蕴。' },
-          { name: '中秋提灯游园会暨爱心晚会', category: '中华与文化节庆', highlights: '举办制作灯谜、猜灯谜、汉服游园及传统月饼品尝会，吸引逾2000名家长与民众携幼共庆佳节。' },
-          { name: '端午裹粽文化体验日', category: '中华与文化节庆', highlights: '爱心妈妈团现场示范传统裹粽手法，深化学生对端午节历史的认知与传统美食制作。' },
-          { name: '元宵节猜灯谜晚会', category: '中华与文化节庆', highlights: '现场悬挂300条智力灯谜，并设立传统汉服打卡区，全校师生欢聚一堂圆满欢庆元宵。' },
-          { name: '冬至团圆包汤圆活动', category: '中华与文化节庆', highlights: '各班级学生在老师与家协理事指导下亲手捏搓七彩汤圆，传递中华传统团圆文化与温馨感恩。' },
-          { name: '华乐团常年演奏会《乐韵华章》', category: '中华与文化节庆', highlights: '学校华乐团呈现多首脍炙人口名曲，吸引数百观众到场推崇，展现华小高水平乐艺素养。' },
-          { name: '二十四节令鼓队成果汇报演出', category: '中华与文化节庆', highlights: '节令鼓队以磅礴鼓声迎嘉宾，展示传统鼓艺传承与学子高昂的精神风貌。' },
-          { name: '水墨画与书法名家观摩展览', category: '中华与文化节庆', highlights: '展出学生优秀水墨画与书法作品150幅，并邀请著名书法名家现场点评与挥毫指导。' },
-          { name: '中华传统民间游戏日', category: '中华与文化节庆', highlights: '推介踢毽子、跳橡皮筋、打陀螺与踢踢球等传统游戏，让当代学子重温古早童年乐趣。' },
-          { name: '华小相声与相声戏剧观摩会', category: '中华与文化节庆', highlights: '学生演绎经典相声段子与幽默短剧，语言表达流畅，现场欢声笑语不断。' },
+          // 【一、中华与文化节庆 10项】
+          { id: 1, name: '新春挥春比赛暨文化表演', category: '中华与文化节庆', highlights: '全校师生身穿红衣迎新春，特邀书法家现场挥毫，并举办华乐与二十四节令鼓表演，展现深厚中华文化底蕴。' },
+          { id: 2, name: '中秋提灯游园会暨爱心晚会', category: '中华与文化节庆', highlights: '举办制作灯谜、猜灯谜、汉服游园及传统月饼品尝会，吸引逾2000名家长与民众携幼共庆佳节。' },
+          { id: 3, name: '端午裹粽文化体验日', category: '中华与文化节庆', highlights: '爱心妈妈团现场示范传统裹粽手法，深化学生对端午节历史的认知与传统美食制作。' },
+          { id: 4, name: '元宵节猜灯谜晚会', category: '中华与文化节庆', highlights: '现场悬挂300条智力灯谜，并设立传统汉服打卡区，全校师生欢聚一堂圆满欢庆元宵。' },
+          { id: 5, name: '冬至团圆搓汤圆活动', category: '中华与文化节庆', highlights: '各班级学生在老师与家协理事指导下亲手捏搓七彩汤圆，传递中华传统团圆文化与温馨感恩。' },
+          { id: 6, name: '华乐团常年演奏会《乐韵华章》', category: '中华与文化节庆', highlights: '学校华乐团呈现多首脍炙人口名曲，吸引数百观众到场推崇，展现华小高水平乐艺素养。' },
+          { id: 7, name: '二十四节令鼓队成果汇报演出', category: '中华与文化节庆', highlights: '节令鼓队以磅礴鼓声迎嘉宾，展示传统鼓艺传承与学子高昂的精神风貌。' },
+          { id: 8, name: '水墨画与书法名家观摩展览', category: '中华与文化节庆', highlights: '展出学生优秀水墨画与书法作品150幅，并邀请著名书法名家现场点评与挥毫指导。' },
+          { id: 9, name: '中华传统民间童玩游戏日', category: '中华与文化节庆', highlights: '推介踢键子、跳橡皮筋、打陀螺与踢踢球等传统游戏，让当代学子重温古早童年乐趣。' },
+          { id: 10, name: '华小传统相声与戏剧观摩会', category: '中华与文化节庆', highlights: '学生演绎经典相声段子与幽默短剧，语言表达流畅，现场欢声笑语不断。' },
 
-          // 2. 学术与技能竞赛 (10项)
-          { name: '校际奥林匹克数学竞赛', category: '学术与技能竞赛', highlights: '吸引近200名各年级精英参与角逐，有效提升学生逻辑思维、解题速度与数学分析能力。' },
-          { name: '华语演讲与华语歌唱大赛', category: '学术与技能竞赛', highlights: '参赛选手台风稳健，表达流畅动人，展现卓越的华文口才与舞台表现力。' },
-          { name: '成语打擂台与华文智力竞赛', category: '学术与技能竞赛', highlights: '通过趣味抢答与成语接龙，激发学生学习华文的浓厚兴趣与成语储备量。' },
-          { name: 'Spell-It-Right 英文拼字比赛', category: '学术与技能竞赛', highlights: '全校三至六年级代表同台拼字，提升三语综合听说读写应用与词汇量。' },
-          { name: '国语国文诗歌朗诵大赛 (Deklamasi Sajak)', category: '学术与技能竞赛', highlights: '学生以流畅国语朗诵诗歌，促进三大种族文化交流与和谐融洽共处。' },
-          { name: 'STEM 机器人创新设计展', category: '学术与技能竞赛', highlights: '展现学生组装机器臂与自动编程创意，凸显华小智能科技教育成果。' },
-          { name: 'Scratch 编程与数字动画设计大赛', category: '学术与技能竞赛', highlights: '学生自行创作逻辑游戏与科技小动画，展现前沿数字素养与创新思维。' },
-          { name: '全校三语辩论盛会', category: '学术与技能竞赛', highlights: '围绕校园与环保课题展开思辩，锻炼学生独立思考、逻辑梳理与敏捷应变。' },
-          { name: '科学实验与科技发明大展', category: '学术与技能竞赛', highlights: '设20个科学互动摊位，学生亲手实验物理化学趣味现象，探索科学奥秘。' },
-          { name: '校级棋艺（象棋与围棋）锦标赛', category: '学术与技能竞赛', highlights: '百名棋手排盘对弈，沉着应战，体现棋道文化与深沉智力比拼。' },
+          // 【二、学术与技能竞赛 10项】
+          { id: 11, name: '校际奥林匹克数学竞赛 (Math Olympiad)', category: '学术与技能竞赛', highlights: '吸引近200名各年级精英参与角逐，有效提升学生逻辑思维、解题速度与数学分析能力。' },
+          { id: 12, name: '华语演讲与华语歌唱大赛', category: '学术与技能竞赛', highlights: '参赛选手台风稳健，表达流畅动人，展现卓越的华文口才与舞台表现力。' },
+          { id: 13, name: '成语打擂台与华文智力竞赛', category: '学术与技能竞赛', highlights: '通过趣味抢答与成语接龙，激发学生学习华文的浓厚兴趣与成语储备量。' },
+          { id: 14, name: 'Spell-It-Right 英文拼字比赛', category: '学术与技能竞赛', highlights: '全校三至六年级代表同台拼字，提升三语综合听说读写应用与词汇量。' },
+          { id: 15, name: '国语诗歌朗诵大赛 (Deklamasi Sajak)', category: '学术与技能竞赛', highlights: '学生以流畅国语朗诵诗歌，促进三大种族文化交流与和谐融洽共处。' },
+          { id: 16, name: 'STEM 机器人创新设计展', category: '学术与技能竞赛', highlights: '展现学生组装机器臂与自动编程创意，凸显华小智能科技教育成果。' },
+          { id: 17, name: 'Scratch 编程与数字动画比赛', category: '学术与技能竞赛', highlights: '学生自行创作逻辑游戏与科技小动画，展现前沿数字素养与创新思维。' },
+          { id: 18, name: '全校三语辩论盛会', category: '学术与技能竞赛', highlights: '围绕校园与环保课题展开思辩，锻炼学生独立思考、逻辑梳理与敏捷应变。' },
+          { id: 19, name: '科学趣味实验与小发明展', category: '学术与技能竞赛', highlights: '设20个科学互动摊位，学生亲手实验物理化学趣味现象，探索科学奥秘。' },
+          { id: 20, name: '校级象棋与围棋锦标赛', category: '学术与技能竞赛', highlights: '百名棋手排盘对弈，沉着应战，体现棋道文化与深沉智力比拼。' },
 
-          // 3. 筹款与校舍建设 (10项)
-          { name: '建校基金爱心义卖会', category: '筹款与校舍建设', highlights: '设50摊位筹建多媒体大楼，突破预定目标，获华社热烈拥护，成功筹获58万令吉建校基金。' },
-          { name: '华教义演十大义演筹款晚宴', category: '筹款与校舍建设', highlights: '知名歌手同台高歌，获热心人士鸣锣击鼓，成功筹获数百万建校及发展基金。' },
-          { name: '爱心慈善千人义跑', category: '筹款与校舍建设', highlights: '千名师生与家长晨曦中开跑，倡导健康生活并为学校筹措科研与绿化经费。' },
-          { name: '智能教室设备筹募晚会', category: '筹款与校舍建设', highlights: '全面升级全校60间教室一体机触控屏，开创现代化数字化教学新篇章。' },
-          { name: '校舍大礼堂落成开幕典礼', category: '筹款与校舍建设', highlights: '耗资数百万冷气大礼堂正式竣工启用，三机构齐聚见证华小发展新里程碑。' },
-          { name: '行政楼与图开馆剪彩仪式', category: '筹款与校舍建设', highlights: '全新现代图书馆启用，收录逾万册三语图书，提供舒适便利的阅读环境。' },
-          { name: '校友回校日暨感恩筹款午宴', category: '筹款与校舍建设', highlights: '历届校友重返母校叙旧，自发捐赠母校发展基金，感念师恩与母校栽培。' },
-          { name: '校园绿化与环保基金筹募活动', category: '筹款与校舍建设', highlights: '种下百棵花木，打造生态小花园，提升校园人文与自然优雅环境。' },
-          { name: '学童营养餐赞助基金推介会', category: '筹款与校舍建设', highlights: '筹措公益基金，专门资助清寒子弟享用免费营养早餐与健康饮品。' },
-          { name: '校队出国参赛基金筹募会', category: '筹款与校舍建设', highlights: '为学校机器人队及舞蹈队筹措出国赴赛事旅费，助华文学子圆梦国际舞台。' },
+          // 【三、筹款与校舍建设 10项】
+          { id: 21, name: '建校基金爱心校庆义卖会', category: '筹款与校舍建设', highlights: '设50摊位筹建多媒体大楼，突破预定目标，获华社热烈拥护，成功筹获58万令吉建校基金。' },
+          { id: 22, name: '华教义演/十大义演筹款晚宴', category: '筹款与校舍建设', highlights: '知名歌手同台高歌，获热心人士鸣锣击鼓，成功筹获数百万建校及发展基金。' },
+          { id: 23, name: '爱心慈善千人义跑 (Charity Run)', category: '筹款与校舍建设', highlights: '千名师生与家长晨曦中开跑，倡导健康生活并为学校筹措科研与绿化经费。' },
+          { id: 24, name: '智能教室设备筹募晚会', category: '筹款与校舍建设', highlights: '全面升级全校60间教室一体机触控屏，开创现代化数字化教学新篇章。' },
+          { id: 25, name: '校舍大礼堂落成开幕典礼', category: '筹款与校舍建设', highlights: '耗资数百万冷气大礼堂正式竣工启用，三机构齐聚见证华小发展新里程碑。' },
+          { id: 26, name: '行政楼与现代图书馆剪彩仪式', category: '筹款与校舍建设', highlights: '全新现代图书馆启用，收录逾万册三语图书，提供舒适便利的阅读环境。' },
+          { id: 27, name: '校友回校日暨感恩筹款午宴', category: '筹款与校舍建设', highlights: '历届校友重返母校叙旧，自发捐赠母校发展基金，感念师恩与母校栽培。' },
+          { id: 28, name: '校园绿化与环保基金筹募', category: '筹款与校舍建设', highlights: '种下百棵花木，打造生态小花园，提升校园人文与自然优雅环境。' },
+          { id: 29, name: '学童营养餐赞助基金推介会', category: '筹款与校舍建设', highlights: '筹措公益基金，专门资助清寒子弟享用免费营养早餐与健康饮品。' },
+          { id: 30, name: '校队出国参赛与培训基金筹募', category: '筹款与校舍建设', highlights: '为学校机器人队及舞蹈队筹措出国赴赛事旅费，助华文学子圆梦国际舞台。' },
 
-          // 4. 典礼与校园里程碑 (10项)
-          { name: '毕业典礼暨颁奖晚会', category: '典礼与校园里程碑', highlights: '毕业生身穿毕业袍欢送母校，移交爱心献金，表扬年度优秀生，场面温馨感人。' },
-          { name: '尊师重道教师节庆典', category: '典礼与校园里程碑', highlights: '三机构致赠教师节红包与礼品，颁发长期服务奖表扬资深教师，学生献花感恩师德。' },
-          { name: '校庆八十周年纪念盛典', category: '典礼与校园里程碑', highlights: '隆重举办80周年切蛋糕仪式，出版纪念特刊并展出校史珍贵历史相片。' },
-          { name: '新老校长荣休与就职交接典礼', category: '典礼与校园里程碑', highlights: '欢送功成身退老校长，热烈欢迎新校长履新，续写华小教育新辉煌。' },
-          { name: '全校学术与课外活动模范生颁奖典礼', category: '典礼与校园里程碑', highlights: '隆重表扬在州际及全国比赛表现优异的学生，树立全校勤奋学习榜样。' },
-          { name: '巡察员与图书管理员就职典礼', category: '典礼与校园里程碑', highlights: '领袖学生整齐肃立宣誓就职，承诺尽忠职守维护校园秩序与纪律风貌。' },
-          { name: '一年级新生迎新日', category: '典礼与校园里程碑', highlights: '带领新生熟悉校园环境，举办破冰活动舒缓入学紧张情绪，适应华小生活。' },
-          { name: '三机构新届理事宣誓就职典礼', category: '典礼与校园里程碑', highlights: '董事会与家协新理事宣誓就职，承诺竭力维护华小办学与学子权益。' },
-          { name: '儿童节欢乐庆典', category: '典礼与校园里程碑', highlights: '三机构赞助全校学生儿童节恩物与肯德基餐盒，校园充满欢声笑语。' },
-          { name: '学童自我超越突破表扬会', category: '典礼与校园里程碑', highlights: '特别表扬学业成绩有飞跃进步的学生，倡导永不放弃的坚毅励志精神。' },
+          // 【四、典礼与校园里程碑 10项】
+          { id: 31, name: '毕业典礼暨颁奖晚宴', category: '典礼与校园里程碑', highlights: '毕业生身穿毕业袍欢送母校，移交爱心献金，表扬年度优秀生，场面温馨感人。' },
+          { id: 32, name: '尊师重道教师节庆典', category: '典礼与校园里程碑', highlights: '三机构致赠教师节红包与礼品，颁发长期服务奖表扬资深教师，学生献花感恩师德。' },
+          { id: 33, name: '校庆八十周年纪念盛典', category: '典礼与校园里程碑', highlights: '隆重举办80周年切蛋糕仪式，出版纪念特刊并展出校史珍贵历史相片。' },
+          { id: 34, name: '校长荣休与新校长就职交接典礼', category: '典礼与校园里程碑', highlights: '欢送功成身退老校长，热烈欢迎新校长履新，续写华小教育新辉煌。' },
+          { id: 35, name: '学术与课外活动模范生颁奖礼', category: '典礼与校园里程碑', highlights: '隆重表扬在州际及全国比赛表现优异的学生，树立全校勤奋学习榜样。' },
+          { id: 36, name: '巡察员与图书管理员就职宣誓', category: '典礼与校园里程碑', highlights: '领袖学生整齐肃立宣誓就职，承诺尽忠职守维护校园秩序与纪律风貌。' },
+          { id: 37, name: '一年级新生迎新日 (Hari Orientasi)', category: '典礼与校园里程碑', highlights: '带领新生熟悉校园环境，举办破冰活动舒缓入学紧张情绪，适应华小生活。' },
+          { id: 38, name: '华小三机构理事宣誓就职典礼', category: '典礼与校园里程碑', highlights: '董事会与家协新理事宣誓就职，承诺竭力维护华小办学与学子权益。' },
+          { id: 39, name: '儿童节欢乐庆典', category: '典礼与校园里程碑', highlights: '三机构赞助全校学生儿童节恩物与肯德基餐盒，校园充满欢声笑语。' },
+          { id: 40, name: '学童自我超越突破表扬会', category: '典礼与校园里程碑', highlights: '特别表扬学业成绩有飞跃进步的学生，倡导永不放弃的坚毅励志精神。' },
 
-          // 5. 体育与健康运动 (10项)
-          { name: '常年田径运动会', category: '体育与健康运动', highlights: '红蓝黄绿四组切磋角逐，多项打破历届校运会纪录，展现拼搏体育精神与团队合作力。' },
-          { name: '全校越野赛跑 (Merentas Desa)', category: '体育与健康运动', highlights: '全校师生在社区道路安全完成越野跑，提升体能与身体素质。' },
-          { name: '校际羽球公开赛', category: '体育与健康运动', highlights: '羽球小将过关斩将，展现高超球技与顽强斗志，赛出华小体育风采。' },
-          { name: '乒乓锦标赛', category: '体育与健康运动', highlights: '小球快速推挡，气氛紧张刺激，有效锻炼学生敏捷反应与心理素质。' },
-          { name: '三对三篮球争霸赛', category: '体育与健康运动', highlights: '高年级男女组默契配合，展现高度团队合作精神与精湛篮板技巧。' },
-          { name: '亲子趣味运动会', category: '体育与健康运动', highlights: '家长与孩子组队进行两人三足、接力滚球，增进亲子沟通与深厚感情。' },
-          { name: '全校尊巴 (Zumba) 健美操大会', category: '体育与健康运动', highlights: '千名师生在操场齐跳活力舞蹈，倡导每日运动半小时健康生活理念。' },
-          { name: '校际游泳锦标赛', category: '体育与健康运动', highlights: '水上飞人奋力拼搏，刷新多项自由泳与蛙泳纪录，表现优异。' },
-          { name: '跆拳道与武术段位晋级考检', category: '体育与健康运动', highlights: '武术队演示套路与击破，展现华小健儿强身健体与严谨自律风貌。' },
-          { name: '健康饮食与牙齿卫生宣传周', category: '体育与健康运动', highlights: '邀请牙医与营养师现场讲座，普及正确刷牙与少糖营养饮食知识。' },
+          // 【五、体育与健康运动 10项】
+          { id: 41, name: '常年田径运动会 (Hari Sukan)', category: '体育与健康运动', highlights: '红蓝黄绿四组切磋角逐，多项打破历届校运会纪录，展现拼搏体育精神与团队合作力。' },
+          { id: 42, name: '全校越野赛跑 (Merentas Desa)', category: '体育与健康运动', highlights: '全校师生在社区道路安全完成越野跑，提升体能与身体素质。' },
+          { id: 43, name: '校际羽球公开赛', category: '体育与健康运动', highlights: '羽球小将过关斩将，展现高超球技与顽强斗志，赛出华小体育风采。' },
+          { id: 44, name: '乒乓锦标赛', category: '体育与健康运动', highlights: '小球快速推挡，气氛紧张刺激，有效锻炼学生敏捷反应与心理素质。' },
+          { id: 45, name: '三对三篮球争霸赛', category: '体育与健康运动', highlights: '高年级男女组默契配合，展现高度团队合作精神与精湛篮板技巧。' },
+          { id: 46, name: '亲子趣味运动会', category: '体育与健康运动', highlights: '家长与孩子组队进行两人三足、接力滚球，增进亲子沟通与深厚感情。' },
+          { id: 47, name: '全校尊巴 (Zumba) 健美操大会', category: '体育与健康运动', highlights: '千名师生在操场齐跳活力舞蹈，倡导每日运动半小时健康生活理念。' },
+          { id: 48, name: '校际水上游泳锦标赛', category: '体育与健康运动', highlights: '水上飞人奋力拼搏，刷新多项自由泳与蛙泳纪录，表现优异。' },
+          { id: 49, name: '跆拳道与中华武术段位检定', category: '体育与健康运动', highlights: '武术队演示套路与击破，展现华小健儿强身健体与严谨自律风貌。' },
+          { id: 50, name: '健康饮食与牙齿卫生宣传周', category: '体育与健康运动', highlights: '邀请牙医与营养师现场讲座，普及正确刷牙与少糖营养饮食知识。' },
 
-          // 6. 制服团体与课外拓展 (10项)
-          { name: '幼童军与红新月会二天一夜生活营', category: '制服团体与课外拓展', highlights: '搭建帐篷、野外烹饪、夜间搜寻，培养学生独立生活与团队合作能力。' },
-          { name: '红新月会急救包扎与逃生演练', category: '制服团体与课外拓展', highlights: '邀请消防局与圣约翰救伤队指导现场模拟心肺复苏与防火逃生技巧。' },
-          { name: 'KRS 少年军校级步操比赛', category: '制服团体与课外拓展', highlights: '队员口号洪亮、动作整齐划一，展现高度纪律性与团队荣誉感。' },
-          { name: '爱护校园 Gotong-Royong 大扫除', category: '制服团体与课外拓展', highlights: '师生与家协理事手持扫帚抹布清扫积水与杂草，杜绝骨痛热症。' },
-          { name: '国家科学馆与天象馆学研考察', category: '制服团体与课外拓展', highlights: '带领学生走出教室实地观察天体运行与科学现象，拓展视野。' },
-          { name: '报社与新闻印刷厂参观体验', category: '制服团体与课外拓展', highlights: '小记者走进报馆了解新闻采编与印刷全过程，体会报人使命。' },
-          { name: '有机农场自然生态体验营', category: '制服团体与课外拓展', highlights: '亲手播种插秧，体验“汗滴禾下土”辛劳，树立珍惜粮食与环保意识。' },
-          { name: '消防安全与防震应急疏散演习', category: '制服团体与课外拓展', highlights: '警报声响起全校三分钟内安全撤离至操场，强化安全防范意识。' },
-          { name: '三语阅读营与图书漂流活动', category: '制服团体与课外拓展', highlights: '共享好书，举办绘本故事剧演出，打造浓郁书香校园文化。' },
-          { name: '学生领袖训练营 (Leadership Camp)', category: '制服团体与课外拓展', highlights: '提升巡察员与班长的沟通协调能力、团队号召力与解决问题思维。' },
+          // 【六、制服团体与课外拓展 10项】
+          { id: 51, name: '幼童军与红新月会二天一夜露营', category: '制服团体与课外拓展', highlights: '搭建帐篷、野外烹饪、夜间搜寻，培养学生独立生活与团队合作能力。' },
+          { id: 52, name: '红新月会急救包扎与防演演练', category: '制服团体与课外拓展', highlights: '邀请消防局与圣约翰救伤队指导现场模拟心肺复苏与防火逃生技巧。' },
+          { id: 53, name: 'KRS 少年军校级步操比赛', category: '制服团体与课外拓展', highlights: '队员口号洪亮、动作整齐划一，展现高度纪律性与团队荣誉感。' },
+          { id: 54, name: '互助清洁 Gotong-Royong 大扫除', category: '制服团体与课外拓展', highlights: '师生与家协理事手持扫帚抹布清扫积水与杂草，杜绝骨痛热症。' },
+          { id: 55, name: '国家科学馆与天象馆学研考察', category: '制服团体与课外拓展', highlights: '带领学生走出教室实地观察天体运行与科学现象，拓展视野。' },
+          { id: 56, name: '报社与新闻印刷厂实地参访', category: '制服团体与课外拓展', highlights: '小记者走进报馆了解新闻采编与印刷全过程，体会报人使命。' },
+          { id: 57, name: '有机农场自然生态体验营', category: '制服团体与课外拓展', highlights: '亲手播种插秧，体验“汗滴禾下土”辛劳，树立珍惜粮食与环保意识。' },
+          { id: 58, name: '消防安全与防震应急疏散演习', category: '制服团体与课外拓展', highlights: '警报声响起全校三分钟内安全撤离至操场，强化安全防范意识。' },
+          { id: 59, name: '三语阅读营与图书漂流活动', category: '制服团体与课外拓展', highlights: '共享好书，举办绘本故事剧演出，打造浓郁书香校园文化。' },
+          { id: 60, name: '学生领袖训练营 (Leadership Camp)', category: '制服团体与课外拓展', highlights: '提升巡察员与班长的沟通协调能力、团队号召力与解决问题思维。' },
 
-          // 7. 家协与社区共育 (10项)
-          { name: '家教协会常年会员大会 (Mesyuarat Agung PIBG)', category: '家协与社区共育', highlights: '高票选举产生新届家协理事，就提升学生福利与校园设备达成多项共识。' },
-          { name: '亲子沟通与家庭教育专题讲座', category: '家协与社区共育', highlights: '邀请心理专家主讲“如何陪伴孩子健康成长”，吸引数百家长聆听。' },
-          { name: '家长日暨成绩单发放交流日 (Hari Terbuka)', category: '家协与社区共育', highlights: '家长与各科任老师面对面深入交流，共同关切学生学习表现与成长。' },
-          { name: '爱心家长团 (KSIB) 成立暨表扬大会', category: '家协与社区共育', highlights: '感谢爱心妈妈团每日风雨无阻在校门口协助指挥交通与维持秩序。' },
-          { name: '社区联合爱心献血日', category: '家协与社区共育', highlights: '家协与国家血库合作，筹获百包爱心血液支援医疗机构，传递爱心。' },
-          { name: '开斋节与各民族友谊共庆会', category: '家协与社区共育', highlights: '全校品尝竹筒饭与马来糕点，三大种族欢聚一堂展现马来西亚和谐。' },
-          { name: '预防网络霸凌与安全上网讲座', category: '家协与社区共育', highlights: '教育学生警惕网络陷阱，合理安排电子产品使用时间，文明上网。' },
-          { name: '防范小学升中英文衔接辅导会', category: '家协与社区共育', highlights: '为小六家长解答国中与独中升学政策，帮助学生平稳过度衔接期。' },
-          { name: '义工妈妈传统手作艺术工坊', category: '家协与社区共育', highlights: '手作义卖制作关怀礼包，传递华小大家庭温暖与和谐氛围。' },
-          { name: '校友回校传承讲堂', category: '家协与社区共育', highlights: '邀请社会杰出校友分享创业与学习心得，激励学弟学妹奋发图强。' }
+          // 【七、家协与社区共育 10项】
+          { id: 61, name: '家教协会常年会员大会 (PIBG)', category: '家协与社区共育', highlights: '高票选举产生新届家协理事，就提升学生福利与校园设备达成多项共识。' },
+          { id: 62, name: '亲子沟通与家庭教育专题讲座', category: '家协与社区共育', highlights: '邀请心理专家主讲“如何陪伴孩子健康成长”，吸引数百家长聆听。' },
+          { id: 63, name: '家长日暨成绩单发放交流日 (Hari Terbuka)', category: '家协与社区共育', highlights: '家长与各科任老师面对面深入交流，共同关切学生学习表现与成长。' },
+          { id: 64, name: '爱心家长团 (KSIB) 成立暨表扬大会', category: '家协与社区共育', highlights: '感谢爱心妈妈团每日风雨无阻在校门口协助指挥交通与维持秩序。' },
+          { id: 65, name: '社区联合爱心献血日 (Kempen Derma Darah)', category: '家协与社区共育', highlights: '家协与国家血库合作，筹获百包爱心血液支援医疗机构，传递爱心。' },
+          { id: 66, name: '开斋节与多元种族友谊共庆会', category: '家协与社区共育', highlights: '全校品尝竹筒饭与马来糕点，三大种族欢聚一堂展现马来西亚和谐。' },
+          { id: 67, name: '预防网络霸凌与安全上网讲座', category: '家协与社区共育', highlights: '教育学生警惕网络陷阱，合理安排电子产品使用时间，文明上网。' },
+          { id: 68, name: '小学升国中/独中衔接辅导会', category: '家协与社区共育', highlights: '为小六家长解答国中与独中升学政策，帮助学生平稳过度衔接期。' },
+          { id: 69, name: '义工妈妈传统手作艺术工坊', category: '家协与社区共育', highlights: '手作义卖制作关怀礼包，传递华小大家庭温暖与和谐氛围。' },
+          { id: 70, name: '杰出校友回校传承分享讲堂', category: '家协与社区共育', highlights: '邀请社会杰出校友分享创业与学习心得，激励学弟学妹奋发图强。' }
         ];
 
         const filteredPresets = computed(() => {
@@ -576,7 +594,7 @@
           activeSections.step4 = true;
 
           showPresetsModal.value = false;
-          showToast(`已成功选用预设：“${item.name}”，长稿已生成！`);
+          showToast(`已成功选用预设 #${item.id}：“${item.name}”，长稿已生成！`);
 
           if (deviceMode.value === 'auto') {
             activeTab.value = 'preview';
