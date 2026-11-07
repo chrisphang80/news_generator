@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>马来西亚华小 AI 新闻稿智能生成器 (UI 优化版)</title>
+  <title>马来西亚华小 AI 新闻稿智能生成器 (70预设修复版)</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Vue 3 -->
@@ -16,7 +16,6 @@
     body { font-family: 'Noto Sans SC', sans-serif; }
     .font-serif-news { font-family: 'Noto Serif SC', 'Times New Roman', serif; }
     [v-cloak] { display: none !important; }
-    /* Phone frame simulation styles */
     .mobile-viewport-frame {
       width: 375px;
       max-width: 100%;
@@ -46,7 +45,7 @@
           <div>
             <h1 class="font-bold text-lg leading-tight flex items-center gap-2">
               华小 AI 新闻稿生成器
-              <span class="text-xs bg-amber-400 text-red-950 font-extrabold px-2 py-0.5 rounded-full">极简易用版</span>
+              <span class="text-xs bg-amber-400 text-red-950 font-extrabold px-2 py-0.5 rounded-full">70大预设全激活</span>
             </h1>
             <p class="text-xs text-red-200">专为马来西亚华小三机构、校长及老师打造的标准新闻稿排版系统</p>
           </div>
@@ -55,7 +54,7 @@
         <!-- 顶部操作按钮组 -->
         <div class="flex items-center gap-2 flex-wrap text-sm">
           <button @click="showPresetsModal = true" class="bg-amber-500 hover:bg-amber-400 text-red-950 font-bold px-3 py-1.5 rounded-xl shadow transition flex items-center gap-1.5 text-xs">
-            📚 70项华小活动预设
+            📚 70项华小活动预设 (点此选择)
           </button>
 
           <!-- 模式切换控制器 -->
@@ -89,7 +88,7 @@
     <!-- 主体区域 / Main Workspace -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 gap-6" :class="deviceMode === 'desktop' ? 'lg:grid-cols-12' : (deviceMode === 'auto' ? 'lg:grid-cols-12' : 'grid-cols-1')">
 
-      <!-- 左侧：清爽分步编辑器 (Form Workspace) -->
+      <!-- 左侧：清爽分步编辑器 -->
       <section v-show="deviceMode !== 'mobile' && (deviceMode === 'desktop' || activeTab === 'editor')" class="space-y-4" :class="deviceMode === 'desktop' || deviceMode === 'auto' ? 'lg:col-span-5' : 'w-full'">
         
         <!-- AI 智能一键生成卡片 -->
@@ -98,8 +97,8 @@
             <h2 class="font-bold text-base flex items-center gap-2">
               <span class="text-xl">✨</span> AI 智能主题推演
             </h2>
-            <button @click="loadDefaultSample" class="text-xs bg-amber-700/60 hover:bg-amber-700 text-white px-2.5 py-1 rounded-lg transition underline">
-              载入标准长篇范例
+            <button @click="showPresetsModal = true" class="text-xs bg-amber-700/80 hover:bg-amber-800 text-white px-2.5 py-1 rounded-lg transition font-bold">
+              打开70项预设库 📚
             </button>
           </div>
           <p class="text-xs text-amber-100">输入主题（如：<i>崇正华小中秋游园会暨筹款</i>），AI 自动填写所有分步资料。</p>
@@ -114,7 +113,7 @@
           </div>
         </div>
 
-        <!-- 步骤折叠面板组 (Accordion Container) -->
+        <!-- 步骤折叠面板组 -->
         <div class="space-y-3">
 
           <!-- 步骤 1：基本资料 -->
@@ -191,21 +190,18 @@
             </button>
 
             <div v-show="activeSections.step3" class="p-4 space-y-4 border-t border-slate-100 dark:border-slate-700">
-              <!-- 董事长 -->
               <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 space-y-2">
                 <label class="block text-xs font-bold text-red-800 dark:text-red-400">🏛️ 董事长姓名与致词</label>
                 <input type="text" v-model="form.vipBoard" placeholder="董事长 拿督斯里陈大明" class="w-full px-3 py-1.5 text-xs border rounded-lg dark:bg-slate-900 dark:border-slate-700">
                 <textarea v-model="form.speechBoard" rows="2" placeholder="致词内容..." class="w-full px-3 py-1.5 text-xs border rounded-lg dark:bg-slate-900 dark:border-slate-700"></textarea>
               </div>
 
-              <!-- 家协主席 -->
               <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 space-y-2">
                 <label class="block text-xs font-bold text-amber-800 dark:text-amber-400">👨‍👩‍👧‍👦 家协主席姓名与致词</label>
                 <input type="text" v-model="form.vipPibg" placeholder="家协主席 李小玲" class="w-full px-3 py-1.5 text-xs border rounded-lg dark:bg-slate-900 dark:border-slate-700">
                 <textarea v-model="form.speechPibg" rows="2" placeholder="致词内容..." class="w-full px-3 py-1.5 text-xs border rounded-lg dark:bg-slate-900 dark:border-slate-700"></textarea>
               </div>
 
-              <!-- 校长 -->
               <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 space-y-2">
                 <label class="block text-xs font-bold text-blue-800 dark:text-blue-400">🎓 校长姓名与致词</label>
                 <input type="text" v-model="form.vipHead" placeholder="校长 张淑芬" class="w-full px-3 py-1.5 text-xs border rounded-lg dark:bg-slate-900 dark:border-slate-700">
@@ -240,7 +236,7 @@
         </div>
       </section>
 
-      <!-- 右侧：新闻稿实时预览面板 (Preview Area) -->
+      <!-- 右侧：新闻稿实时预览面板 -->
       <section v-show="deviceMode === 'mobile' || deviceMode === 'desktop' || activeTab === 'preview'" class="space-y-4" :class="deviceMode === 'desktop' || deviceMode === 'auto' ? 'lg:col-span-7' : 'w-full'">
 
         <!-- 预览面板控制头部 -->
@@ -263,7 +259,7 @@
           </div>
         </div>
 
-        <!-- 新闻标题备选卡片 (Headline Selector) -->
+        <!-- 新闻标题备选卡片 -->
         <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
           <label class="block text-xs font-bold text-red-800 dark:text-red-400">点击自动替换报纸主标题：</label>
           <div class="space-y-1.5">
@@ -280,10 +276,8 @@
         <!-- 预览报纸容器 -->
         <div :class="deviceMode === 'mobile' ? 'mobile-viewport-frame p-5' : 'bg-white dark:bg-slate-800 p-6 sm:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md'">
 
-          <!-- 报纸长篇新闻稿渲染区 -->
           <article class="space-y-6 font-serif-news text-slate-900 dark:text-slate-100">
             
-            <!-- 报导主副标题 -->
             <header class="border-b-2 border-red-800 dark:border-red-600 pb-4 space-y-2">
               <span class="text-[11px] font-sans font-bold bg-red-800 text-white px-2 py-0.5 rounded uppercase tracking-wider inline-block">马来西亚华小深度新闻专稿</span>
               <h1 class="text-xl sm:text-2xl font-black leading-snug text-slate-900 dark:text-white">
@@ -292,35 +286,29 @@
               <p class="text-xs font-sans text-slate-500 dark:text-slate-400">—— {{ form.schoolName }}“{{ form.eventName }}”盛况追踪深度报导</p>
             </header>
 
-            <!-- 1. 导语段落 (包含电讯发稿头) -->
             <p class="text-base sm:text-lg leading-relaxed text-justify first-letter:text-4xl first-letter:font-black first-letter:text-red-800 dark:first-letter:text-red-400 first-letter:mr-1">
               <strong class="text-red-800 dark:text-red-400 font-sans">（{{ form.datelineLocation }}{{ formattedDatelineDate }}讯）</strong>
               {{ form.schoolName }}日前于校内盛大举行“{{ form.eventName }}”，获得学校董事会、家教协会、校友会三机构理事、全体师生、家长及社会热心华社人士热烈响应参与，现场欢歌笑语，盛况空前！
             </p>
 
-            <!-- 2. 创校背景与华社情怀段落 -->
             <div v-if="form.schoolBackground" class="space-y-2">
               <h3 class="font-bold text-sm text-red-900 dark:text-red-400 font-sans border-l-4 border-red-800 pl-2">■ 华情深厚 传承文化再续新篇</h3>
               <p class="text-base leading-relaxed text-justify">{{ form.schoolBackground }}</p>
             </div>
 
-            <!-- 3. 活动流程与现场热闹盛况段落 -->
             <div v-if="form.eventProcess" class="space-y-2">
               <h3 class="font-bold text-sm text-red-900 dark:text-red-400 font-sans border-l-4 border-red-800 pl-2">■ 节目丰富 精彩环节轮番上演</h3>
               <p class="text-base leading-relaxed text-justify">{{ form.eventProcess }}</p>
             </div>
 
-            <!-- 4. 亮点数据与筹款成果段落 -->
             <div class="space-y-2">
               <h3 class="font-bold text-sm text-red-900 dark:text-red-400 font-sans border-l-4 border-red-800 pl-2">■ 成果丰硕 华社支持打破目标</h3>
               <p class="text-base leading-relaxed text-justify">{{ form.highlights }}</p>
             </div>
 
-            <!-- 5. 华小三机构长篇致词专区 -->
             <div class="space-y-4 pt-2">
               <h3 class="font-bold text-sm text-red-900 dark:text-red-400 font-sans border-l-4 border-red-800 pl-2">■ 三机构齐心 齐声寄语华教发展</h3>
 
-              <!-- 董事致词区 -->
               <div v-if="form.vipBoard" class="bg-slate-50 dark:bg-slate-900/60 border-l-4 border-red-700 p-4 rounded-r-xl space-y-1.5 font-sans">
                 <h4 class="font-bold text-xs sm:text-sm text-red-900 dark:text-red-300">🏛️ {{ form.vipBoard }}发表长篇致词：</h4>
                 <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-serif-news text-justify">
@@ -328,7 +316,6 @@
                 </p>
               </div>
 
-              <!-- 家协致词区 -->
               <div v-if="form.vipPibg" class="bg-slate-50 dark:bg-slate-900/60 border-l-4 border-amber-600 p-4 rounded-r-xl space-y-1.5 font-sans">
                 <h4 class="font-bold text-xs sm:text-sm text-amber-900 dark:text-amber-300">👨‍👩‍👧‍👦 {{ form.vipPibg }}致词：</h4>
                 <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-serif-news text-justify">
@@ -336,7 +323,6 @@
                 </p>
               </div>
 
-              <!-- 校长致词区 -->
               <div v-if="form.vipHead" class="bg-slate-50 dark:bg-slate-900/60 border-l-4 border-blue-700 p-4 rounded-r-xl space-y-1.5 font-sans">
                 <h4 class="font-bold text-xs sm:text-sm text-blue-900 dark:text-blue-300">🎓 {{ form.vipHead }}致词：</h4>
                 <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-serif-news text-justify">
@@ -345,13 +331,11 @@
               </div>
             </div>
 
-            <!-- 6. 鸣谢与未来展望段落 -->
             <div v-if="form.outlook" class="space-y-2 pt-2">
               <h3 class="font-bold text-sm text-red-900 dark:text-red-400 font-sans border-l-4 border-red-800 pl-2">■ 感恩华社 携手展望更好未来</h3>
               <p class="text-base leading-relaxed text-justify">{{ form.outlook }}</p>
             </div>
 
-            <!-- 新闻照片图说标准区块 -->
             <div v-if="form.photoCaption" class="mt-6 p-4 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-xs font-sans space-y-1">
               <span class="font-bold text-slate-600 dark:text-slate-400 block">📷 【附图说明 PHOTO CAPTION】</span>
               <p class="text-slate-800 dark:text-slate-200 leading-normal">{{ form.photoCaption }}</p>
@@ -371,15 +355,15 @@
         
         <div class="p-4 bg-red-800 text-white flex items-center justify-between">
           <h3 class="font-bold text-base flex items-center gap-2">
-            📚 华小 70 项精选活动预设库
+            📚 华小 70 项精选活动预设库 (全部70项已激活)
           </h3>
           <button @click="showPresetsModal = false" class="text-red-200 hover:text-white text-xl font-bold px-2">✕</button>
         </div>
 
         <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 bg-slate-50 dark:bg-slate-900">
-          <input type="text" v-model="presetSearch" placeholder="🔍 搜索活动关键词 (如: 义卖、挥春、露营、奥数)..." class="flex-1 px-3 py-1.5 text-sm border rounded-xl dark:bg-slate-800 dark:border-slate-700">
-          <select v-model="selectedCategory" class="px-3 py-1.5 text-sm border rounded-xl dark:bg-slate-800 dark:border-slate-700">
-            <option value="ALL">全部 70 项分类</option>
+          <input type="text" v-model="presetSearch" placeholder="🔍 搜索活动关键词 (如: 义卖、挥春、露营、奥数、运动会)..." class="flex-1 px-3 py-2 text-sm border rounded-xl dark:bg-slate-800 dark:border-slate-700">
+          <select v-model="selectedCategory" class="px-3 py-2 text-sm border rounded-xl dark:bg-slate-800 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-200">
+            <option value="ALL">全部 70 项分类 ({{ allPresets.length }} 项)</option>
             <option v-for="cat in presetCategories" :key="cat" :value="cat">{{ cat }}</option>
           </select>
         </div>
@@ -387,17 +371,21 @@
         <div class="flex-1 overflow-y-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
           <div v-for="(item, i) in filteredPresets" :key="i" 
                @click="applyPreset(item)"
-               class="p-3 border border-slate-200 dark:border-slate-700 hover:border-red-500 dark:hover:border-red-400 rounded-xl cursor-pointer hover:bg-red-50/50 dark:hover:bg-slate-700/50 transition space-y-1">
+               class="p-3.5 border border-slate-200 dark:border-slate-700 hover:border-red-500 dark:hover:border-red-400 rounded-xl cursor-pointer hover:bg-red-50/60 dark:hover:bg-slate-700/60 transition space-y-1.5 shadow-sm">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-sm text-red-900 dark:text-red-300">{{ item.name }}</span>
-              <span class="text-[10px] bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">{{ item.category }}</span>
+              <span class="font-bold text-sm text-red-900 dark:text-red-300 flex items-center gap-1.5">
+                <span class="text-xs bg-red-800 text-white px-1.5 py-0.5 rounded font-mono">{{ i + 1 }}</span>
+                {{ item.name }}
+              </span>
+              <span class="text-[10px] bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded font-bold text-slate-600 dark:text-slate-300">{{ item.category }}</span>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{{ item.highlights }}</p>
+            <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">{{ item.highlights }}</p>
           </div>
         </div>
 
-        <div class="p-3 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 text-right">
-          <button @click="showPresetsModal = false" class="px-4 py-1.5 bg-slate-600 text-white rounded-xl text-xs font-bold">关闭窗口</button>
+        <div class="p-3 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
+          <span class="text-slate-500">共找到 {{ filteredPresets.length }} 项相关活动（点击任意卡片即可一键生成稿件）</span>
+          <button @click="showPresetsModal = false" class="px-4 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-xl font-bold transition">关闭窗口</button>
         </div>
       </div>
     </div>
@@ -414,7 +402,6 @@
 
     createApp({
       setup() {
-        // UI 状态控制
         const deviceMode = ref('auto');
         const activeTab = ref('preview');
         const showPresetsModal = ref(false);
@@ -425,19 +412,17 @@
         const toastMsg = ref('');
         const selectedHeadlineIdx = ref(0);
 
-        // 折叠面板展开状态 (默认只展开步骤1与步骤2)
         const activeSections = reactive({
           step1: true,
           step2: true,
-          step3: false,
-          step4: false
+          step3: true,
+          step4: true
         });
 
         const toggleSection = (stepKey) => {
           activeSections[stepKey] = !activeSections[stepKey];
         };
 
-        // 表单响应式数据
         const form = reactive({
           schoolName: '吉隆坡中华华文小学',
           eventName: '建校80周年爱心校庆义卖会暨多媒体大楼筹款晚宴',
@@ -468,41 +453,101 @@
         });
 
         const headlineOptions = computed(() => [
-          `${form.schoolName}盛大举行“${form.eventName}” 华社同欢共襄盛举筹得58万令吉`,
-          `华社同心打破筹款目标！ ${form.schoolName}“${form.eventName}”圆满落幕全面提升智能设备`,
-          `传承八十载华情无限 ${form.schoolName}“${form.eventName}”热烈回响再创里程碑`
+          `${form.schoolName}盛大举行“${form.eventName}” 华社同欢共襄盛举`,
+          `打破预定目标！ ${form.schoolName}“${form.eventName}”圆满落幕再创高峰`,
+          `传承华情共创辉煌 ${form.schoolName}“${form.eventName}”热烈回响`
         ]);
-
-        const loadDefaultSample = () => {
-          form.schoolName = '吉隆坡中华华文小学';
-          form.eventName = '建校80周年爱心校庆义卖会暨多媒体大楼筹款晚宴';
-          form.datelineLocation = '吉隆坡';
-          form.schoolBackground = '华文教育乃华社之根，本校自1946年创办至今历经八十载风雨洗礼，秉持“十年树木，百年树人”之育人宗旨，为国家与社会输送了无数杰出人才。';
-          form.eventProcess = '活动当天清晨起，校园内便热闹非凡。大会特邀二十四节令鼓队以磅礴如雷的鼓声为义卖会揭开序幕。现场共设有超过50个特色摊位，欢声笑语响彻校园。';
-          form.highlights = '在全校师生、三机构理事、历届校友及社会热心人士的万众一心下，本次义卖会与筹款活动打破预定目标，成功筹获总计 580,000 令吉发展基金。';
-          form.vipBoard = '董事长 拿督斯里陈大明';
-          form.speechBoard = '华文小学在马来西亚的生根发芽，全凭华社数十年来义无反顾的扶持与爱护。今天看到如此多家长与校友重返母校共襄盛举，充分展现华社对华文教育薪火相传的坚贞信念。';
-          form.vipPibg = '家协主席 李小玲';
-          form.speechPibg = '家校共育是孩子健康成长最重要的坚实后盾。家长们的积极投入不仅为学校筹集了急需的发展资金，更树立了榜样。';
-          form.vipHead = '校长 张淑芬';
-          form.speechHead = '校方计划将本次筹集到的基金全面用于全校60间教室的智能触控一体机升级项目。';
-          form.outlook = '学校三机构再次向所有赞助商、鸣锣人、剪彩人、志愿家长及报社媒体致以最诚挚的感谢！';
-          form.photoCaption = '前排左起为家协主席李小玲、校长张淑芬、董事长拿督斯里陈大明及赞助人代表共同主持敲锣开幕仪式。';
-          showToast('已成功载入示范稿件');
-        };
 
         const presetCategories = [
           '中华与文化节庆', '学术与技能竞赛', '筹款与校舍建设', 
           '典礼与校园里程碑', '体育与健康运动', '制服团体与课外拓展', '家协与社区共育'
         ];
 
+        // 完整 70 项华小预设活动（每类 10 项）
         const allPresets = [
-          { name: '新春挥春比赛暨文化表演', category: '中华与文化节庆', highlights: '全校师生红衣迎新春，特邀书法家现场挥毫，并举办华乐与二十四节令鼓表演，展现深厚中华文化底蕴。' },
+          // 1. 中华与文化节庆 (10项)
+          { name: '新春挥春比赛暨文化表演', category: '中华与文化节庆', highlights: '全校师生身穿红衣迎新春，特邀书法家现场挥毫，并举办华乐与二十四节令鼓表演，展现深厚中华文化底蕴。' },
           { name: '中秋提灯游园会暨爱心晚会', category: '中华与文化节庆', highlights: '举办制作灯谜、猜灯谜、汉服游园及传统月饼品尝会，吸引逾2000名家长与民众携幼共庆佳节。' },
+          { name: '端午裹粽文化体验日', category: '中华与文化节庆', highlights: '爱心妈妈团现场示范传统裹粽手法，深化学生对端午节历史的认知与传统美食制作。' },
+          { name: '元宵节猜灯谜晚会', category: '中华与文化节庆', highlights: '现场悬挂300条智力灯谜，并设立传统汉服打卡区，全校师生欢聚一堂圆满欢庆元宵。' },
+          { name: '冬至团圆包汤圆活动', category: '中华与文化节庆', highlights: '各班级学生在老师与家协理事指导下亲手捏搓七彩汤圆，传递中华传统团圆文化与温馨感恩。' },
+          { name: '华乐团常年演奏会《乐韵华章》', category: '中华与文化节庆', highlights: '学校华乐团呈现多首脍炙人口名曲，吸引数百观众到场推崇，展现华小高水平乐艺素养。' },
+          { name: '二十四节令鼓队成果汇报演出', category: '中华与文化节庆', highlights: '节令鼓队以磅礴鼓声迎嘉宾，展示传统鼓艺传承与学子高昂的精神风貌。' },
+          { name: '水墨画与书法名家观摩展览', category: '中华与文化节庆', highlights: '展出学生优秀水墨画与书法作品150幅，并邀请著名书法名家现场点评与挥毫指导。' },
+          { name: '中华传统民间游戏日', category: '中华与文化节庆', highlights: '推介踢毽子、跳橡皮筋、打陀螺与踢踢球等传统游戏，让当代学子重温古早童年乐趣。' },
+          { name: '华小相声与相声戏剧观摩会', category: '中华与文化节庆', highlights: '学生演绎经典相声段子与幽默短剧，语言表达流畅，现场欢声笑语不断。' },
+
+          // 2. 学术与技能竞赛 (10项)
+          { name: '校际奥林匹克数学竞赛', category: '学术与技能竞赛', highlights: '吸引近200名各年级精英参与角逐，有效提升学生逻辑思维、解题速度与数学分析能力。' },
+          { name: '华语演讲与华语歌唱大赛', category: '学术与技能竞赛', highlights: '参赛选手台风稳健，表达流畅动人，展现卓越的华文口才与舞台表现力。' },
+          { name: '成语打擂台与华文智力竞赛', category: '学术与技能竞赛', highlights: '通过趣味抢答与成语接龙，激发学生学习华文的浓厚兴趣与成语储备量。' },
+          { name: 'Spell-It-Right 英文拼字比赛', category: '学术与技能竞赛', highlights: '全校三至六年级代表同台拼字，提升三语综合听说读写应用与词汇量。' },
+          { name: '国语国文诗歌朗诵大赛 (Deklamasi Sajak)', category: '学术与技能竞赛', highlights: '学生以流畅国语朗诵诗歌，促进三大种族文化交流与和谐融洽共处。' },
+          { name: 'STEM 机器人创新设计展', category: '学术与技能竞赛', highlights: '展现学生组装机器臂与自动编程创意，凸显华小智能科技教育成果。' },
+          { name: 'Scratch 编程与数字动画设计大赛', category: '学术与技能竞赛', highlights: '学生自行创作逻辑游戏与科技小动画，展现前沿数字素养与创新思维。' },
+          { name: '全校三语辩论盛会', category: '学术与技能竞赛', highlights: '围绕校园与环保课题展开思辩，锻炼学生独立思考、逻辑梳理与敏捷应变。' },
+          { name: '科学实验与科技发明大展', category: '学术与技能竞赛', highlights: '设20个科学互动摊位，学生亲手实验物理化学趣味现象，探索科学奥秘。' },
+          { name: '校级棋艺（象棋与围棋）锦标赛', category: '学术与技能竞赛', highlights: '百名棋手排盘对弈，沉着应战，体现棋道文化与深沉智力比拼。' },
+
+          // 3. 筹款与校舍建设 (10项)
           { name: '建校基金爱心义卖会', category: '筹款与校舍建设', highlights: '设50摊位筹建多媒体大楼，突破预定目标，获华社热烈拥护，成功筹获58万令吉建校基金。' },
-          { name: '常年田径运动会', category: '体育与健康运动', highlights: '红蓝黄绿四组切磋角逐，多项打破历届校运会纪录，展现拼搏体育精神与团队合作力。' },
+          { name: '华教义演十大义演筹款晚宴', category: '筹款与校舍建设', highlights: '知名歌手同台高歌，获热心人士鸣锣击鼓，成功筹获数百万建校及发展基金。' },
+          { name: '爱心慈善千人义跑', category: '筹款与校舍建设', highlights: '千名师生与家长晨曦中开跑，倡导健康生活并为学校筹措科研与绿化经费。' },
+          { name: '智能教室设备筹募晚会', category: '筹款与校舍建设', highlights: '全面升级全校60间教室一体机触控屏，开创现代化数字化教学新篇章。' },
+          { name: '校舍大礼堂落成开幕典礼', category: '筹款与校舍建设', highlights: '耗资数百万冷气大礼堂正式竣工启用，三机构齐聚见证华小发展新里程碑。' },
+          { name: '行政楼与图开馆剪彩仪式', category: '筹款与校舍建设', highlights: '全新现代图书馆启用，收录逾万册三语图书，提供舒适便利的阅读环境。' },
+          { name: '校友回校日暨感恩筹款午宴', category: '筹款与校舍建设', highlights: '历届校友重返母校叙旧，自发捐赠母校发展基金，感念师恩与母校栽培。' },
+          { name: '校园绿化与环保基金筹募活动', category: '筹款与校舍建设', highlights: '种下百棵花木，打造生态小花园，提升校园人文与自然优雅环境。' },
+          { name: '学童营养餐赞助基金推介会', category: '筹款与校舍建设', highlights: '筹措公益基金，专门资助清寒子弟享用免费营养早餐与健康饮品。' },
+          { name: '校队出国参赛基金筹募会', category: '筹款与校舍建设', highlights: '为学校机器人队及舞蹈队筹措出国赴赛事旅费，助华文学子圆梦国际舞台。' },
+
+          // 4. 典礼与校园里程碑 (10项)
           { name: '毕业典礼暨颁奖晚会', category: '典礼与校园里程碑', highlights: '毕业生身穿毕业袍欢送母校，移交爱心献金，表扬年度优秀生，场面温馨感人。' },
-          { name: '尊师重道教师节庆典', category: '典礼与校园里程碑', highlights: '三机构致赠教师节红包与礼品，颁发长期服务奖表扬资深教师，学生献花感恩师德。' }
+          { name: '尊师重道教师节庆典', category: '典礼与校园里程碑', highlights: '三机构致赠教师节红包与礼品，颁发长期服务奖表扬资深教师，学生献花感恩师德。' },
+          { name: '校庆八十周年纪念盛典', category: '典礼与校园里程碑', highlights: '隆重举办80周年切蛋糕仪式，出版纪念特刊并展出校史珍贵历史相片。' },
+          { name: '新老校长荣休与就职交接典礼', category: '典礼与校园里程碑', highlights: '欢送功成身退老校长，热烈欢迎新校长履新，续写华小教育新辉煌。' },
+          { name: '全校学术与课外活动模范生颁奖典礼', category: '典礼与校园里程碑', highlights: '隆重表扬在州际及全国比赛表现优异的学生，树立全校勤奋学习榜样。' },
+          { name: '巡察员与图书管理员就职典礼', category: '典礼与校园里程碑', highlights: '领袖学生整齐肃立宣誓就职，承诺尽忠职守维护校园秩序与纪律风貌。' },
+          { name: '一年级新生迎新日', category: '典礼与校园里程碑', highlights: '带领新生熟悉校园环境，举办破冰活动舒缓入学紧张情绪，适应华小生活。' },
+          { name: '三机构新届理事宣誓就职典礼', category: '典礼与校园里程碑', highlights: '董事会与家协新理事宣誓就职，承诺竭力维护华小办学与学子权益。' },
+          { name: '儿童节欢乐庆典', category: '典礼与校园里程碑', highlights: '三机构赞助全校学生儿童节恩物与肯德基餐盒，校园充满欢声笑语。' },
+          { name: '学童自我超越突破表扬会', category: '典礼与校园里程碑', highlights: '特别表扬学业成绩有飞跃进步的学生，倡导永不放弃的坚毅励志精神。' },
+
+          // 5. 体育与健康运动 (10项)
+          { name: '常年田径运动会', category: '体育与健康运动', highlights: '红蓝黄绿四组切磋角逐，多项打破历届校运会纪录，展现拼搏体育精神与团队合作力。' },
+          { name: '全校越野赛跑 (Merentas Desa)', category: '体育与健康运动', highlights: '全校师生在社区道路安全完成越野跑，提升体能与身体素质。' },
+          { name: '校际羽球公开赛', category: '体育与健康运动', highlights: '羽球小将过关斩将，展现高超球技与顽强斗志，赛出华小体育风采。' },
+          { name: '乒乓锦标赛', category: '体育与健康运动', highlights: '小球快速推挡，气氛紧张刺激，有效锻炼学生敏捷反应与心理素质。' },
+          { name: '三对三篮球争霸赛', category: '体育与健康运动', highlights: '高年级男女组默契配合，展现高度团队合作精神与精湛篮板技巧。' },
+          { name: '亲子趣味运动会', category: '体育与健康运动', highlights: '家长与孩子组队进行两人三足、接力滚球，增进亲子沟通与深厚感情。' },
+          { name: '全校尊巴 (Zumba) 健美操大会', category: '体育与健康运动', highlights: '千名师生在操场齐跳活力舞蹈，倡导每日运动半小时健康生活理念。' },
+          { name: '校际游泳锦标赛', category: '体育与健康运动', highlights: '水上飞人奋力拼搏，刷新多项自由泳与蛙泳纪录，表现优异。' },
+          { name: '跆拳道与武术段位晋级考检', category: '体育与健康运动', highlights: '武术队演示套路与击破，展现华小健儿强身健体与严谨自律风貌。' },
+          { name: '健康饮食与牙齿卫生宣传周', category: '体育与健康运动', highlights: '邀请牙医与营养师现场讲座，普及正确刷牙与少糖营养饮食知识。' },
+
+          // 6. 制服团体与课外拓展 (10项)
+          { name: '幼童军与红新月会二天一夜生活营', category: '制服团体与课外拓展', highlights: '搭建帐篷、野外烹饪、夜间搜寻，培养学生独立生活与团队合作能力。' },
+          { name: '红新月会急救包扎与逃生演练', category: '制服团体与课外拓展', highlights: '邀请消防局与圣约翰救伤队指导现场模拟心肺复苏与防火逃生技巧。' },
+          { name: 'KRS 少年军校级步操比赛', category: '制服团体与课外拓展', highlights: '队员口号洪亮、动作整齐划一，展现高度纪律性与团队荣誉感。' },
+          { name: '爱护校园 Gotong-Royong 大扫除', category: '制服团体与课外拓展', highlights: '师生与家协理事手持扫帚抹布清扫积水与杂草，杜绝骨痛热症。' },
+          { name: '国家科学馆与天象馆学研考察', category: '制服团体与课外拓展', highlights: '带领学生走出教室实地观察天体运行与科学现象，拓展视野。' },
+          { name: '报社与新闻印刷厂参观体验', category: '制服团体与课外拓展', highlights: '小记者走进报馆了解新闻采编与印刷全过程，体会报人使命。' },
+          { name: '有机农场自然生态体验营', category: '制服团体与课外拓展', highlights: '亲手播种插秧，体验“汗滴禾下土”辛劳，树立珍惜粮食与环保意识。' },
+          { name: '消防安全与防震应急疏散演习', category: '制服团体与课外拓展', highlights: '警报声响起全校三分钟内安全撤离至操场，强化安全防范意识。' },
+          { name: '三语阅读营与图书漂流活动', category: '制服团体与课外拓展', highlights: '共享好书，举办绘本故事剧演出，打造浓郁书香校园文化。' },
+          { name: '学生领袖训练营 (Leadership Camp)', category: '制服团体与课外拓展', highlights: '提升巡察员与班长的沟通协调能力、团队号召力与解决问题思维。' },
+
+          // 7. 家协与社区共育 (10项)
+          { name: '家教协会常年会员大会 (Mesyuarat Agung PIBG)', category: '家协与社区共育', highlights: '高票选举产生新届家协理事，就提升学生福利与校园设备达成多项共识。' },
+          { name: '亲子沟通与家庭教育专题讲座', category: '家协与社区共育', highlights: '邀请心理专家主讲“如何陪伴孩子健康成长”，吸引数百家长聆听。' },
+          { name: '家长日暨成绩单发放交流日 (Hari Terbuka)', category: '家协与社区共育', highlights: '家长与各科任老师面对面深入交流，共同关切学生学习表现与成长。' },
+          { name: '爱心家长团 (KSIB) 成立暨表扬大会', category: '家协与社区共育', highlights: '感谢爱心妈妈团每日风雨无阻在校门口协助指挥交通与维持秩序。' },
+          { name: '社区联合爱心献血日', category: '家协与社区共育', highlights: '家协与国家血库合作，筹获百包爱心血液支援医疗机构，传递爱心。' },
+          { name: '开斋节与各民族友谊共庆会', category: '家协与社区共育', highlights: '全校品尝竹筒饭与马来糕点，三大种族欢聚一堂展现马来西亚和谐。' },
+          { name: '预防网络霸凌与安全上网讲座', category: '家协与社区共育', highlights: '教育学生警惕网络陷阱，合理安排电子产品使用时间，文明上网。' },
+          { name: '防范小学升中英文衔接辅导会', category: '家协与社区共育', highlights: '为小六家长解答国中与独中升学政策，帮助学生平稳过度衔接期。' },
+          { name: '义工妈妈传统手作艺术工坊', category: '家协与社区共育', highlights: '手作义卖制作关怀礼包，传递华小大家庭温暖与和谐氛围。' },
+          { name: '校友回校传承讲堂', category: '家协与社区共育', highlights: '邀请社会杰出校友分享创业与学习心得，激励学弟学妹奋发图强。' }
         ];
 
         const filteredPresets = computed(() => {
@@ -513,11 +558,29 @@
           });
         });
 
+        // 应用选中的预设并自动填充长篇新闻稿
         const applyPreset = (item) => {
           form.eventName = item.name;
           form.highlights = item.highlights;
+          form.schoolBackground = `华文教育乃华社之根，${form.schoolName}创校至今始终坚持弘扬中华文化与提高学术水平。本次“${item.name}”的隆重举行，再次印证了华社对本校的爱护与期望。`;
+          form.eventProcess = `活动当天清晨起，校园内处处洋溢着喜庆气氛。在三机构理事与教职员的精心安排下，多项精彩节目与丰富环节有序开展，获得全体师生与热心华社人士的一致好评。`;
+          form.speechBoard = `“‘${item.name}’的圆满举办，离不开华社贤达、商家与家长们的鼎力支持。董事会将继续全力保障学校软硬件建设，为孩子们创造更美好的学习条件。”`;
+          form.speechPibg = `“家校共育是学子健康成长最坚实的后盾。感谢爱心家长与教职员们的辛勤付出，使活动得以井然有序地顺利进行。”`;
+          form.speechHead = `“校方将继续努力提升教学品质，注重培养孩子的三语能力与综合素质，不辜负华社与家长们的殷切厚望。”`;
+          form.outlook = `本次“${item.name}”在感恩与温馨的氛围中圆满落幕。校方衷心感谢各界贤达与媒体的关心与支持！`;
+          form.photoCaption = `三机构理事、校方领导与主要嘉宾们在“${item.name}”现场隆重合影留念。`;
+
+          activeSections.step1 = true;
+          activeSections.step2 = true;
+          activeSections.step3 = true;
+          activeSections.step4 = true;
+
           showPresetsModal.value = false;
-          showToast(`已应用预设：“${item.name}”`);
+          showToast(`已成功选用预设：“${item.name}”，长稿已生成！`);
+
+          if (deviceMode.value === 'auto') {
+            activeTab.value = 'preview';
+          }
         };
 
         const generateWithAI = () => {
@@ -530,23 +593,22 @@
           setTimeout(() => {
             const topic = aiPrompt.value.trim();
             form.eventName = topic;
-            form.schoolBackground = `华文教育乃华社之根，${form.schoolName}创校至今始终坚持弘扬中华优秀文化与提高学术水平。本次“${topic}”的举办，再次凝聚了华社的集体力量。`;
-            form.eventProcess = `活动当天，校园内布置一新，热闹非凡。现场不仅安排了学生带来的丰富文艺表演，更设有多个互动游戏与展示摊位，吸引了大量民众与师生亲子同乐。`;
-            form.highlights = `在学校三机构与热心华社人士的不懈努力下，“${topic}”取得了极具里程碑意义的圆满成功。活动不仅吸引了数千人到场支持，更在各界赞助下达成了既定目标。`;
-            form.speechBoard = `“‘${topic}’的成功离不开广大华社与家长们的无私奉献。华小的每一步发展，都承载着大家的厚爱与期望。董事会将继续全力保障学校软硬件建设。”`;
-            form.speechPibg = `“家协将继续扮演好学校与家长之间的桥梁角色。感谢爱心家长们的默默耕耘，使本次活动得以井然有序地圆满举行。”`;
+            form.schoolBackground = `华文教育乃华社之根，${form.schoolName}创校至今始终坚持弘扬中华文化与提高学术水平。本次“${topic}”的举办，再次凝聚了华社的集体力量。`;
+            form.eventProcess = `活动当天，校园内布置一新，热闹非凡。现场不仅安排了学生带来的丰富表演，更设有多个互动环节，吸引了大量民众与师生亲子同乐。`;
+            form.highlights = `在学校三机构与热心华社人士的不懈努力下，“${topic}”取得了极具里程碑意义的圆满成功，获得广泛好评。`;
+            form.speechBoard = `“‘${topic}’的成功离不开广大华社与家长们的无私奉献。华小的每一步发展，都承载着大家的厚爱与期望。”`;
+            form.speechPibg = `“家协将继续扮演好学校与家长之间的桥梁角色。感谢爱心家长们的默默耕耘，使本次活动顺利举行。”`;
             form.speechHead = `“校方将把本次活动的丰硕成果全面投入到提升教学品质与改善学生福利中，为孩子们打造更优质的求学环境。”`;
             form.outlook = `活动在温馨感人的氛围中圆满结束。校方衷心感谢各界贤达与报社媒体的关注，未来将携手再创辉煌！`;
             form.photoCaption = `三机构理事、校方代表与嘉宾们在“${topic}”现场隆重合影留念。`;
             
-            // 自动打开折叠面板
             activeSections.step1 = true;
             activeSections.step2 = true;
             activeSections.step3 = true;
             activeSections.step4 = true;
 
             isGeneratingAI.value = false;
-            showToast('✨ AI 已自动推演并填满分步资料！');
+            showToast('✨ AI 已自动推演并填满长篇资料！');
             if (deviceMode.value === 'auto') {
               activeTab.value = 'preview';
             }
@@ -583,6 +645,7 @@
           presetSearch,
           selectedCategory,
           presetCategories,
+          allPresets,
           filteredPresets,
           applyPreset,
           isGeneratingAI,
@@ -595,7 +658,6 @@
           formattedDatelineDate,
           headlineOptions,
           selectedHeadlineIdx,
-          loadDefaultSample,
           copyArticle,
           downloadTxt,
           toastMsg
